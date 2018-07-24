@@ -1,0 +1,19 @@
+.element1 {
+  background: red;
+}
+
+.element1 .element1-child {
+  background: green;
+}
+
+.element2 {
+  background: yellow;
+}
+
+.element2 .element2-child .button {
+  background: black;
+}
+
+.element3 {
+  background: orange;
+}
