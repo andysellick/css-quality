@@ -20,15 +20,19 @@ app = {
           var matches = data.contents.match(/href=[\S]+\.css/g);
           var matchesLength = matches.length;
           for (var x = 0; x < matchesLength; x++) {
-            console.log(matches[x].replace(/href="/, ''));
             var css = url + matches[x].replace(/href="/, '');
-
-            $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(css) + '&callback=?', function(data){
-              app.processCSSFile(data.contents);
-            });
+            app.downloadCss(css);
           }
         });
       }
+    });
+  },
+
+  downloadCss: function(css) {
+    $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(css) + '&callback=?', function(data) {
+      var filename = data.status.url.split('/');
+      filename = filename.slice(3).join('/');
+      app.processCssFile(data.contents, filename, data.status.content_length, data.status.content_type);
     });
   },
 
@@ -46,7 +50,7 @@ app = {
     reader.readAsText(file, 'UTF-8');
 
     reader.onload = function (e) {
-      app.processCSSFile(e.target.result, file);
+      app.processCssFile(e.target.result, file.name, file.size, file.type);
     };
 
     reader.onerror = function (e) {
@@ -54,43 +58,40 @@ app = {
     };
   },
 
-  processCSSFile: function(css, file) {
+  processCssFile: function(css, filename, filesize, filetype) {
     var output = '';
     var minifiedCss = '';
-
     css = app.removeCSSComments(css);
 
-    if (!app.cssIsMinified(css)) {
-      minifiedCss = app.minifyCss(css);
-      output += 'CSS is not minified';
+    if (app.cssIsMinified(css)) {
+      output += 'CSS appears to be minified';
     }
     else {
-      minifiedCss = css;
-      output += 'CSS is minified';
+      output += 'CSS does not appear to be minified';
     }
-
+    minifiedCss = app.minifyCss(css); //regardless of whether the CSS appears to be minified, minify it
     // should we check CSS is valid as well?
 
-    //output += '\n\n' + file.name;
-    //output += '\n\t' + (file.size / 1024) + ' KiB';
-    //output += '\n\t' + file.type;
-    //output += '\n\tLast modified ' + file.lastModifiedDate;
-    output += '\n\t' + (css.match(/\n/g) || []).length + ' lines long';
+    output += '\n\n' + filename;
+    output += '\n\t' + Math.round((filesize / 1024) * 100) / 100 + ' KiB';
+    output += '\n\t' + filetype;
+    output += '\n\t' + Math.max(1, (css.match(/\n/g) || []).length) + ' lines long';
 
     var classes = app.countCssDeclarations(minifiedCss);
     output += '\n\n' + classes.length + ' class declarations';
 
     var longest = app.longestDeclaration(classes);
-    output += '\n\nLongest CSS nest is ' + longest + ' classes:';
+    output += '\n\nDeepest CSS nest is ' + longest + ' declarations:';
     for (var x = 0; x < classes.length; x++) {
       if (classes[x].split(' ').length >= longest) {
         output += '\n\t' + classes[x];
       }
     }
 
-    var detailsOutput = $('<output/>').addClass('output results').html(output);
-    var debugOutput = $('<output/>').addClass('output debug').html(app.debugoutput);
-    var cssOutput = $('<output/>').addClass('output').html(minifiedCss);
+    var detailsOutput = $('<section/>').addClass('output results').html("<h3>Results</h3>" + output);
+    var debugOutput = $('<section/>').addClass('output debug').html("<h3>Debug</h3>" + app.debugoutput);
+    //var cssOutput = $('<section/>').addClass('output raw').html(minifiedCss);
+    var cssOutput = $('<section/>').addClass('output raw').html("<h3>Original CSS</h3>" + css); //should we output the original CSS here or our minified version?
 
     var outputEl = $('#output');
     outputEl.append(detailsOutput, debugOutput, cssOutput);
@@ -114,6 +115,7 @@ app = {
     css = css.replace(/\s\s+/g, ' '); //replace multiple spaces with a single space
     css = css.replace(/\s*\{\s*/g, '{'); //remove whitespace around open curly braces
     css = css.replace(/\s*:\s*/g, ':'); //remove whitespace around colons
+    css = css.replace(/\s*\"\s*/g, '"'); //remove whitespace around double quote marks
     css = css.replace(/;\s*\}\s*/g, '}'); //remove any semi colons immediately followed by a close curly brace
     css = css.replace(/\s*\+\s*/g, '+'); //remove whitespace around + selector
     css = css.replace(/\s*\>\s*/g, '>'); //remove whitespace around > selector
