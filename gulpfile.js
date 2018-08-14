@@ -27,6 +27,9 @@ var paths = {
     bower: {
         src: basePaths.src + basePaths.stat + 'bower_components',
         dest: basePaths.dest + basePaths.stat + 'bower_components'
+    },
+    spec: {
+        src: basePaths.src + 'spec/'
     }
 };
 
@@ -39,8 +42,10 @@ var gulp = require('gulp'),
     copyFiles = {
         scripts: []
     };
+var jasmineBrowser = require('gulp-jasmine-browser');
 var cssnano = require('gulp-cssnano');
 var gutil = require('gulp-util');
+var watch = require('gulp-watch');
 
 /* CSS - LESS */
 function processCss(inputStream, taskType) {
@@ -54,8 +59,7 @@ function processCss(inputStream, taskType) {
         .pipe($.rename({suffix: '.min'}))
         .pipe(cssnano())
         .pipe(gulp.dest(paths.styles.dest))
-        .pipe(browserSync.stream())
-        //.pipe($.notify({ message: taskType + ' task complete' }));
+        .pipe(browserSync.stream());
 }
 
 gulp.task('styles', ['less:main']);
@@ -79,8 +83,7 @@ gulp.task('scripts', ['scripts:moveFiles'], function() {
     .pipe($.uglify())
     .pipe($.bytediff.stop())
     .pipe(gulp.dest(paths.scripts.dest))
-    .pipe(browserSync.stream())
-    //.pipe($.notify({ message: 'Scripts task complete' }));
+    .pipe(browserSync.stream());
 });
 
 /* Move JS files that are already minified to dist/js/ folder */
@@ -96,21 +99,17 @@ gulp.task('images', function() {
         $.util.log($.util.colors.red('Error (' + error.plugin + '): ' + error.message));
         this.emit('end');
     }))
-    //.pipe($.bytediff.start()) //seems to be causing a problem with image reprocessing in subdirs on windows
     .pipe($.newer(paths.images.dest))
     .pipe($.cache($.imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
-    //.pipe($.bytediff.stop()) //seems to be causing a problem with image reprocessing in subdirs on windows
     .pipe(gulp.dest(paths.images.dest))
-    .pipe(browserSync.stream())
-    //.pipe($.notify({ message: 'Images task complete' }));
+    .pipe(browserSync.stream());
 });
 
 /* HTML */
 gulp.task('copyHtml', function(){
-    return gulp.src(paths.templates.src + "*.html")
+    return gulp.src(paths.templates.src + '*.html')
         .pipe(gulp.dest(paths.templates.dest))
-        .pipe(browserSync.stream())
-        //.pipe($.notify({ message: 'HTML task complete' }));
+        .pipe(browserSync.stream());
 });
 
 gulp.task('copyBowerStuff',function(){
@@ -123,42 +122,19 @@ gulp.task('copyAssets',function(){
     .pipe(gulp.dest(paths.assets.dest));
 });
 
-/* optional - file generation */
-//http://stackoverflow.com/questions/23230569/how-do-you-create-a-file-from-a-string-in-gulp
-function createFile(filename, variables) {
-	var src = require('stream').Readable({ objectMode: true })
-	src._read = function () {
-		for(var f = 0; f < variables.length; f++){
-			this.push(new gutil.File({ cwd: "", base: "", path: filename.replace('XXX',f), contents: new Buffer(variables[f]) }))
-		}
-	    this.push(null)
-	}
-	return src;
-}
-//create the file content in the form of an array. In this case we take a string and replace 'VAR1' with loop number
-function generateFileVariables(numfiles,filecontent){
-	var output = [];
-	for(var i = 0; i < numfiles; i++){
-		var str = filecontent.replace(/VAR1/gi, i);
-		output.push(str);
-	}
-	return output;
-}
-
-var numfiles = 10;
-var filecontent = "This is an example of the content that could go into a file. It might contain variables that will be output automatically such as this: VAR1";
-var filevariables = generateFileVariables(numfiles,filecontent);
-
-gulp.task('generateFiles', function () {
-	return createFile("fileXXX.txt", filevariables)
-	.pipe(gulp.dest(paths.templates.dest + 'files/'))
+gulp.task('jasmine', function() {
+  var filesForTest = [basePaths.src + 'static/bower_components/jquery/dist/jquery.min.js', paths.scripts.src + '**/*.js', paths.spec.src + '**/*_spec.js'];
+  return gulp.src(filesForTest)
+    .pipe(watch(filesForTest))
+    .pipe(jasmineBrowser.specRunner())
+    .pipe(jasmineBrowser.server({port: 8888}));
 });
 
 /* BrowserSync */
 gulp.task('browser-sync', ['styles', 'scripts', 'images', 'copyHtml', 'copyAssets', 'copyBowerStuff'], function() {
     browserSync.init({
         server: {
-            baseDir: "./dist/"
+            baseDir: './dist/'
         }
         //Use if you don't want BS to open a tab in your browser when it starts up
         //open: false
@@ -177,7 +153,7 @@ gulp.task('clear', function (done) {
 
 /* Clean up stray files */
 gulp.task('clean', ['clear'], function(cb) {
-    $.del([basePaths.dest], cb)
+    $.del([basePaths.dest], cb);
 });
 
 /* Default task */

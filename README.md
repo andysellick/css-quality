@@ -1,26 +1,17 @@
-House Styles Redux
-==================
-
-Version of the house styles written primarily for standalone front end builds. Key features:
-
-- browser support for IE7 dropped
-- gulp outputs only what is required for the build to the build/ directory, and deletes it on rebuild.
-- CSS now only uses one stylesheet, containing media queries for tablet and mobile.
-- Directory structure is a bit cleaner.
-- Images should be put in src/static/img/
-- Anything not CSS/JS/images should go in src/static/assets/ e.g. fonts, videos, other files.
+Unfinished
+==========
 
 
 Use of Gulp
 ------------
 
 There is a `gulpfile.js` within this repository to make development much quicker for the house styles. All you need to do is:
-* Install Node (http://nodejs.org) & Gulp (https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md)  
-* Run `npm run setup`  
+* Install Node (http://nodejs.org) & Gulp (https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md)
+* Run `npm run setup`
 This will install all the dependencies found in `package.json` (The `node_modules` folder that is generated when you run this command should be created on a case-by-case basis and not pushed to a repository), install the Bower dependencies found in `package.json` and run the local server through the `gulp` command.
 
 Note for Windows users with Git Bash: you may need to run 'npm run setup' a couple of times for it to finally work.
-  
+
 This will open up a tab in your browser, running a server at `localhost:3000` (unless you have set up a proxy server address - details on how to change this are in the `gulpfile.js` file).
 
 Gulp features
@@ -49,9 +40,16 @@ Name | Version | Description
 **del** | ^1.2.0 | Enables the deleting of files
 
 ### BrowserSync
-  
-The main component of this Gulp setup is BrowserSync. This plugin provides the following advantages for development:  
-* Simultaneous page scrolling for all devices connected to the same link  
-* Clicking links or populating form fields on one device will duplicate this behaviour on all other linked devices  
+
+The main component of this Gulp setup is BrowserSync. This plugin provides the following advantages for development:
+* Simultaneous page scrolling for all devices connected to the same link
+* Clicking links or populating form fields on one device will duplicate this behaviour on all other linked devices
 * A dashboard at `localhost:3001` where you can send commands to all connected devices, perform actions and do network throttle testing.
 
+Testing
+-------
+
+Jasmine is included for testing.
+
+- run `gulp jasmine`
+- visit localhost:8888

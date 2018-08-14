@@ -7,25 +7,31 @@ app = {
     'use strict';
 
     if (this.checkBrowserCompatibility()) {
-      document.getElementById('file').addEventListener('change', app.handleFileSelect, false);
+      var fileinput = document.getElementById('file');
+      if (fileinput) {
+        fileinput.addEventListener('change', app.handleFileSelect, false);
+      }
     }
 
-    document.getElementById('website-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var url = document.getElementById('website-url').value;
+    var websiteform = document.getElementById('website-form');
+    if (websiteform) {
+      websiteform.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var url = document.getElementById('website-url').value;
 
-      if (url.length) {
-        // depends upon http://multiverso.me/AllOrigins/ to avoid CORS problems
-        $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(url) + '&callback=?', function(data){
-          var matches = data.contents.match(/href=[\S]+\.css/g);
-          var matchesLength = matches.length;
-          for (var x = 0; x < matchesLength; x++) {
-            var css = url + matches[x].replace(/href="/, '');
-            app.downloadCss(css);
-          }
-        });
-      }
-    });
+        if (url.length) {
+          // depends upon http://multiverso.me/AllOrigins/ to avoid CORS problems
+          $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(url) + '&callback=?', function(data){
+            var matches = data.contents.match(/href=[\S]+\.css/g);
+            var matchesLength = matches.length;
+            for (var x = 0; x < matchesLength; x++) {
+              var css = url + matches[x].replace(/href="/, '');
+              app.downloadCss(css);
+            }
+          });
+        }
+      });
+    }
   },
 
   downloadCss: function(css) {
