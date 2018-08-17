@@ -6,6 +6,8 @@ app = {
   init: function() {
     'use strict';
 
+    app.createToggleEvents();
+
     if (this.checkBrowserCompatibility()) {
       var fileinput = document.getElementById('file');
       if (fileinput) {
@@ -14,6 +16,7 @@ app = {
     }
 
     var websiteform = document.getElementById('website-form');
+
     if (websiteform) {
       websiteform.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -25,9 +28,17 @@ app = {
             var matches = data.contents.match(/href=[\S]+\.css/g);
             var matchesLength = matches.length;
             for (var x = 0; x < matchesLength; x++) {
-              var css = url + matches[x].replace(/href="/, '');
+              var css = matches[x].replace(/href="/, '');
+              //append the URL if the CSS ref is relative
+              if (css.indexOf('http') === -1) {
+                css = url + css;
+              }
               app.downloadCss(css);
             }
+
+            var $overview = $('#overview');
+            $overview.html('Found ' + matchesLength + ' CSS files totalling <span id="totalfilesize">0</span> KiB. Some of these files may not be included in page load (why not?).');
+            $('<a/>').addClass('overview__toggle js-show-all').html('Show all').attr('data-toggle', 'closed').appendTo($overview);
           });
         }
       });
@@ -37,8 +48,8 @@ app = {
   downloadCss: function(css) {
     $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(css) + '&callback=?', function(data) {
       var filename = data.status.url.split('/');
-      filename = filename.slice(3).join('/');
-      app.processCssFile(data.contents, filename, data.status.content_length, data.status.content_type);
+      filename = filename[filename.length - 1];
+      app.processCssFile(data.contents, filename, css, data.status.content_length, data.status.content_type);
     });
   },
 
@@ -64,43 +75,91 @@ app = {
     };
   },
 
-  processCssFile: function(css, filename, filesize, filetype) {
-    var output = '';
+  processCssFile: function(css, filename, url, filesize, filetype) {
+    //var output = '';
     var minifiedCss = '';
-    css = app.removeCSSComments(css);
+    css = app.removeCssComments(css);
+    css = app.removeMediaQueries(css);
+    var details = $('<div/>').addClass('output results').html('<h3>Results</h3>');
+    var debug = $('<div/>').addClass('output debug').html('<h3>Debug</h3>');
+    var raw = $('<div/>').addClass('output raw').html('<h3>Raw</h3>');
+
+    details = app.output(details, url);
 
     if (app.cssIsMinified(css)) {
-      output += 'CSS appears to be minified';
+      details = app.output(details, 'CSS appears to be minified');
     }
     else {
-      output += 'CSS does not appear to be minified';
+      details = app.output(details, 'CSS does not appear to be minified');
     }
+
     minifiedCss = app.minifyCss(css); //regardless of whether the CSS appears to be minified, minify it
     // should we check CSS is valid as well?
 
-    output += '\n\n' + filename;
-    output += '\n\t' + Math.round((filesize / 1024) * 100) / 100 + ' KiB';
-    output += '\n\t' + filetype;
-    output += '\n\t' + Math.max(1, (css.match(/\n/g) || []).length) + ' lines long';
+    var kib = Math.round((filesize / 1024) * 100) / 100;
 
-    var classes = app.countCssDeclarations(minifiedCss);
-    output += '\n\n' + classes.length + ' class declarations';
+    $('#totalfilesize').html(parseFloat($('#totalfilesize').html()) + kib);
+
+    details = app.output(details, kib + ' KiB');
+    details = app.output(details, filetype);
+    details = app.output(details, Math.max(1, (css.match(/\n/g) || []).length) + ' lines long');
+
+    var classes = app.getCssDeclarations(minifiedCss);
+    details = app.output(details, classes.length + ' class declarations');
 
     var longest = app.longestDeclaration(classes);
-    output += '\n\nDeepest CSS nest is ' + longest + ' declarations:';
+    details = app.output(details, 'Deepest CSS nest is ' + longest + ' declarations:');
     for (var x = 0; x < classes.length; x++) {
       if (classes[x].split(' ').length >= longest) {
-        output += '\n\t' + classes[x];
+        details = app.output(details, classes[x]);
       }
     }
 
-    var detailsOutput = $('<section/>').addClass('output results').html("<h3>Results</h3>" + output);
-    var debugOutput = $('<section/>').addClass('output debug').html("<h3>Debug</h3>" + app.debugoutput);
-    //var cssOutput = $('<section/>').addClass('output raw').html(minifiedCss);
-    var cssOutput = $('<section/>').addClass('output raw').html("<h3>Original CSS</h3>" + css); //should we output the original CSS here or our minified version?
+    debug = app.output(debug, app.debugoutput);
 
-    var outputEl = $('#output');
-    outputEl.append(detailsOutput, debugOutput, cssOutput);
+    //var cssOutput = $('<section/>').addClass('output raw').html(minifiedCss);
+    //var cssOutput = $('<section/>').addClass('output raw').html('<h3>Original CSS</h3>' + css); //should we output the original CSS here or our minified version?
+    raw = app.output(raw, css);
+
+    $('#output').append(app.createToggle(filename, details.add(debug).add(raw)));
+  },
+
+  // given a wrapper element, append content into it
+  output: function(wrapper, content, el, className) {
+    if (el) {
+      content = $(el).addClass(className).html(content);
+    }
+    else {
+      content = content + '\n';
+    }
+    wrapper.html(wrapper.html() + content);
+    return wrapper;
+  },
+
+  createToggle: function(title, content) {
+    var $wrapper = $('<section/>').addClass('details js-toggle');
+    var $header = $('<div/>').addClass('details__header js-toggle-link').html(title);
+    var $content = $('<div/>').addClass('details__content js-toggle-content').html(content).hide();
+    $wrapper.append($header, $content);
+    return $wrapper;
+  },
+
+  createToggleEvents: function() {
+    $('#overview').on('click', '.js-show-all', function(e) {
+      e.preventDefault();
+      if ($(this).attr('data-toggle') === 'closed') {
+        $('.js-toggle-content').show();
+        $(this).attr('data-toggle', 'open').text('Hide all');
+      }
+      else {
+        $('.js-toggle-content').hide();
+        $(this).attr('data-toggle', 'closed').text('Show all');
+      }
+    });
+
+    $('#output').on('click', '.js-toggle-link', function() {
+      $(this).closest('.js-toggle').find('.js-toggle-content').toggle();
+    });
   },
 
   cssIsMinified: function(css) {
@@ -111,32 +170,49 @@ app = {
     }
   },
 
-  removeCSSComments: function(css) {
-    return css.replace(/\/\*[\s\S]*\*\//g, '');
+  removeCssComments: function(css) {
+    css = css.replace(/[^\:\;]+\/\/[\s\S]+?\n+/g, '\n'); // remove // comments, but not strings like http://
+    return css.replace(/\/\*[\s\S]*\*\//g, ''); // remove /* comments */
   },
 
+  removeMediaQueries: function(css) {
+    // remove any lines starting @ (something){ but not @font or @-ms-
+    css = css.replace(/@{1}(?!font)(?!-ms)[\s\S][^\{]*\{/g, '');
+    // remove any double }} (end of media query), only instance of a double }}? FIXME check
+    return css.replace(/\}[\t\n]*\}/g, '}');
+  },
+
+  // note that this doesn't properly minify the CSS - only as far as we need to for analysing it
   minifyCss: function(css) {
+    css = css.trim();
     css = css.replace(/\n/g, ''); //remove newlines
     css = css.replace(/\t/g, ''); //remove tabs
     css = css.replace(/\s\s+/g, ' '); //replace multiple spaces with a single space
-    css = css.replace(/\s*\{\s*/g, '{'); //remove whitespace around open curly braces
-    css = css.replace(/\s*:\s*/g, ':'); //remove whitespace around colons
-    css = css.replace(/\s*\"\s*/g, '"'); //remove whitespace around double quote marks
     css = css.replace(/;\s*\}\s*/g, '}'); //remove any semi colons immediately followed by a close curly brace
+
+    // remove whitespace around the following characters
+    var chars = ['{', '}', ',', ':', ';', '"', '>', '~'];
+    for (var x = 0; x < chars.length; x++) {
+      var re = new RegExp('\\s*' + '\\' + chars[x] + '\\s*', 'g');
+      css = css.replace(re, chars[x]);
+    }
+    // special cases
     css = css.replace(/\s*\+\s*/g, '+'); //remove whitespace around + selector
-    css = css.replace(/\s*\>\s*/g, '>'); //remove whitespace around > selector
-    css = css.replace(/\s*\~\s*/g, '~'); //remove whitespace around > selector
+    css = css.replace(/\s*\'\s*/g, '\''); //remove whitespace around '
+
     return css;
   },
 
-  countCssDeclarations: function(css) {
+  getCssDeclarations: function(css) {
     var lines = css.replace(/\{([\s\S]*?)\}/g,','); //replace { .. } with comma
     lines = lines.split(','); //then split on commas, also will include comma separated declarations
-    lines = app.removeMediaQueryLines(lines);
+    //lines = app.removeMediaQueryLines(lines);
     app.debugoutput = lines.join('<br/>');
     return lines;
   },
 
+  // expects an array of CSS declarations
+  /*
   removeMediaQueryLines: function(lines) {
     var cleanedLines = [];
 
@@ -157,6 +233,7 @@ app = {
     }
     return cleanedLines;
   },
+  */
 
   longestDeclaration: function(lines) {
     var longest = 0;

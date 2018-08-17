@@ -9,6 +9,14 @@ body {
     color:@black;
 }
 
+.overview {
+    margin: 20px 0;
+}
+
+.overview__toggle {
+    cursor: pointer;
+}
+
 .output {
     display: block;
     margin: 1em 0;
@@ -29,6 +37,24 @@ body {
 
 .raw {
     word-wrap: break-word;
+}
+
+.details {
+    margin-bottom: 30px;
+    border: solid 1px silver;
+}
+
+.details__header {
+    .fontcalculate(18);
+    .clearfix;
+    padding: 10px;
+    background: silver;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.details__content {
+    padding: 10px;
 }
 
 @media @tabletWidth{
