@@ -76,14 +76,17 @@ app = {
   },
 
   processCssFile: function(css, filename, url, filesize, filetype) {
-    //var output = '';
-    var minifiedCss = '';
-    css = app.removeCssComments(css);
-    css = app.removeMediaQueries(css);
-    var details = $('<div/>').addClass('output results').html('<h3>Results</h3>');
+    var details = $('<div/>').addClass('output results');
     var debug = $('<div/>').addClass('output debug').html('<h3>Debug</h3>');
     var raw = $('<div/>').addClass('output raw').html('<h3>Raw</h3>');
+    var warnings = 0;
 
+    /* clean up */
+    css = app.removeCssComments(css);
+    css = app.removeMediaQueries(css);
+    var lines = app.splitCssByLines(css);
+
+    /* information */
     details = app.output(details, url);
 
     if (app.cssIsMinified(css)) {
@@ -93,11 +96,10 @@ app = {
       details = app.output(details, 'CSS does not appear to be minified');
     }
 
-    minifiedCss = app.minifyCss(css); //regardless of whether the CSS appears to be minified, minify it
+    var minifiedCss = app.minifyCss(css); //regardless of whether the CSS appears to be minified, minify it
     // should we check CSS is valid as well?
 
     var kib = Math.round((filesize / 1024) * 100) / 100;
-
     $('#totalfilesize').html(parseFloat($('#totalfilesize').html()) + kib);
 
     details = app.output(details, kib + ' KiB');
@@ -105,23 +107,40 @@ app = {
     details = app.output(details, Math.max(1, (css.match(/\n/g) || []).length) + ' lines long');
 
     var classes = app.getCssDeclarations(minifiedCss);
+    app.debugoutput = classes.join('<br/>');
     details = app.output(details, classes.length + ' class declarations');
 
     var longest = app.longestDeclaration(classes);
-    details = app.output(details, 'Deepest CSS nest is ' + longest + ' declarations:');
+    details = app.output(details, 'Longest class declaration is ' + longest + ':');
     for (var x = 0; x < classes.length; x++) {
       if (classes[x].split(' ').length >= longest) {
         details = app.output(details, classes[x]);
       }
     }
 
-    debug = app.output(debug, app.debugoutput);
+    /* warnings */
+    var ids = app.findIdUsage(classes);
+    var idsLength = ids.length;
+    if (idsLength) {
+      warnings++;
+      var idsText = '<p>Found ' + idsLength + ' declarations using an ID attribute</p><ul>';
+      for (var y = 0; y < idsLength; y++) {
+        idsText = idsText + '<li>' + ids[y] + '</li>';
+      }
+      idsText = idsText + '</ul>';
+      details = app.output(details, idsText);
+    }
 
-    //var cssOutput = $('<section/>').addClass('output raw').html(minifiedCss);
-    //var cssOutput = $('<section/>').addClass('output raw').html('<h3>Original CSS</h3>' + css); //should we output the original CSS here or our minified version?
+    /* final output */
+    debug = app.output(debug, app.debugoutput);
     raw = app.output(raw, css);
 
-    $('#output').append(app.createToggle(filename, details.add(debug).add(raw)));
+    var title = filename;
+    if (warnings) {
+      title = title + '<br/>Found ' + warnings + ' warnings';
+    }
+
+    $('#output').append(app.createToggle(title, details.add(debug).add(raw)));
   },
 
   // given a wrapper element, append content into it
@@ -203,37 +222,20 @@ app = {
     return css;
   },
 
-  getCssDeclarations: function(css) {
-    var lines = css.replace(/\{([\s\S]*?)\}/g,','); //replace { .. } with comma
-    lines = lines.split(','); //then split on commas, also will include comma separated declarations
-    //lines = app.removeMediaQueryLines(lines);
-    app.debugoutput = lines.join('<br/>');
+  // should return an array of e.g. '.class{style:value}'
+  splitCssByLines: function(css) {
+    css = css.replace(/\}/g, '\}#\}');
+    var lines = css.split('#}');
+    lines = lines.filter(function(n){ return n !== ''; }); // remove empty elements
     return lines;
   },
 
-  // expects an array of CSS declarations
-  /*
-  removeMediaQueryLines: function(lines) {
-    var cleanedLines = [];
-
-    var cleaner = function(line) {
-      if (line.match(/^\s*\}/)) { //if line begins with } e.g. }.h1 (after a closing media query)
-        line = line.replace(/^\s*\}/, ''); //remove the } and return the line
-      }
-      if (!line.match(/^@media/)) {
-        return line;
-      }
-    };
-
-    for (var x = 0; x < lines.length; x++) {
-      var result = cleaner(lines[x]);
-      if (result) {
-        cleanedLines.push(result.trim());
-      }
-    }
-    return cleanedLines;
+  // returns an array of all declarations e.g. ['.class', '.class2 ol']
+  getCssDeclarations: function(css) {
+    var lines = css.replace(/\{([\s\S]*?)\}/g,','); //replace { .. } with comma
+    lines = lines.split(','); //then split on commas, also will include comma separated declarations
+    return lines;
   },
-  */
 
   longestDeclaration: function(lines) {
     var longest = 0;
@@ -246,6 +248,17 @@ app = {
       }
     }
     return longest;
+  },
+
+  // returns all class declarations that include an ID
+  findIdUsage: function(classes) {
+    var matches = [];
+    for (var x = 0; x < classes.length; x++) {
+      if (classes[x].match(/#[a-zA-Z]/g)) {
+        matches.push(classes[x]);
+      }
+    }
+    return matches;
   }
 };
 

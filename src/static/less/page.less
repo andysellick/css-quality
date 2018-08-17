@@ -1,60 +1,56 @@
 html {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    font-family:Arial, Verdana, sans-serif;
-    font-size: 100%;
-    color:@black;
+  font-family: Arial, Verdana, sans-serif;
+  font-size: 100%;
+  color: @black;
 }
 
-.overview {
-    margin: 20px 0;
+.title {
+  text-align: center;
 }
 
 .overview__toggle {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .output {
-    display: block;
-    margin: 1em 0;
-    padding: 1em;
-    border: solid 1px gray;
-}
-
-.results {
-    unicode-bidi: embed;
-    font-family: monospace;
-    white-space: pre;
+  display: block;
+  margin: 1em 0;
+  padding: 1em;
+  border: solid 1px gray;
 }
 
 .debug {
-    word-wrap: break-word;
-    .fontcalculate(14);
+  word-wrap: break-word;
+  .fontcalculate(14);
 }
 
 .raw {
-    word-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .details {
-    margin-bottom: 30px;
-    border: solid 1px silver;
+  margin-bottom: 30px;
+  border: solid 1px silver;
 }
 
 .details__header {
-    .fontcalculate(18);
-    .clearfix;
-    padding: 10px;
-    background: silver;
-    font-weight: bold;
-    cursor: pointer;
+  .fontcalculate(18);
+  .clearfix;
+  padding: 10px;
+  background: silver;
+  font-weight: bold;
+  cursor: pointer;
+  word-wrap: break-word;
 }
 
 .details__content {
-    padding: 10px;
+  padding: 10px;
+  word-wrap: break-word;
 }
 
 @media @tabletWidth{

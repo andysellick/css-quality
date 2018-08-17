@@ -85,6 +85,35 @@ only screen and (min-resolution: 2dppx){
     expect(output).toEqual(expected);
   });
 
+  it('splits CSS into separate lines', function() {
+    var css = 'html{font-size:62.5%}*{color:black;}body{font-family:sans-serif;font-weight:400}';
+    var output = app.splitCssByLines(css);
+    var expected = [
+      'html{font-size:62.5%}',
+      '*{color:black;}',
+      'body{font-family:sans-serif;font-weight:400}'
+    ];
+
+    expect(output).toEqual(expected);
+  });
+
+  it('finds uses of ID in declaration', function() {
+    var css = [
+      'body',
+      '.class',
+      '#id',
+      'body#id',
+      'a[href^="#"]:after'
+    ];
+    var output = app.findIdUsage(css);
+    var expected = [
+      '#id',
+      'body#id'
+    ];
+
+    expect(output).toEqual(expected);
+  });
+
   it('creates a toggle section correctly', function() {
     var toggle = app.createToggle('My title', 'My content');
     var expected = $('<section class="details js-toggle"><div class="details__header js-toggle-link">My title</div><div class="details__content js-toggle-content" style="display: none;">My content</div></section>');

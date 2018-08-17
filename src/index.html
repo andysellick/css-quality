@@ -4,26 +4,9 @@
 <!--[if lt IE 9]>
   <script src="static/bower_components/html5shiv/dist/html5shiv.min.js"></script>
 <![endif]-->
-<title>title</title>
+<title>CSS Evaluator</title>
 <meta charset="utf-8" />
 <meta name="viewport" content="initial-scale=1.0">
-
-<link rel="canonical" href="https://fixme">
-<meta name=description content="fixme">
-<meta property=og:title content="fixme">
-<meta property=og:site_name content="fixme">
-<meta property=og:description content="fixme">
-<meta property=articlepublisher content="https://www.facebook.com/fixme">
-<meta property=og:url content="https://fixme">
-<meta property=og:type content="website">
-<meta property=og:image content="https://fixme.jpg">
-<meta name=twitter:card content="summary_large_image">
-<meta name=twitter:site content="@fixme">
-<meta name=twitter:title content="fixme">
-<meta name=twitter:description content="fixme">
-<meta name=twitter:url content="http://fixme">
-<meta name=twitter:image content="http://fixme.jpg">
-<link rel="shortcut icon" href="/static/favicon.ico">
 
 <link rel="stylesheet" type="text/css" href="static/css/styles.min.css"/>
 <script>
@@ -33,15 +16,51 @@
 </head>
 
 <body>
-  <div class="container">
-    <form id="website-form">
-      <input type="text" id="website-url"/>
-      <button type="submit" id="website-submit" class="btn">Search</button>
+  <div class="container jsenabled">
+    <h1 class="title">CSS Evaluator</h1>
+
+    <form id="website-form" class="form">
+      <label for="website-url">Enter a URL to analyse the CSS on that site:</label>
+      <input type="text" id="website-url" class="form__input"/>
+      <button type="submit" id="website-submit" class="btn">Submit</button>
     </form>
     <!-- <input type="file" id="file"/> -->
 
+    <section class="details js-toggle">
+      <div class="details__header js-toggle-link">
+        govuk-template-c0b8ba8b1652aacad298d74f24752260187f538b50c40c2484f7f333cbc3cf2b.css<br>Found 1 warnings
+      </div>
+      <div class="details__content js-toggle-content">
+        <div class="">
+          https://assets.publishing.service.gov.uk/static/govuk-template-c0b8ba8b1652aacad298d74f24752260187f538b50c40c2484f7f333cbc3cf2b.css
+          CSS appears to be minified
+          14.4 KiB
+          text/css
+          1 lines long
+          205 class declarations
+          Longest class declaration is 6:
+          #footer .footer-meta .footer-meta-inner .open-government-licence .logo a
+          #footer .footer-meta .footer-meta-inner .open-government-licence .logo a
+          <p>Found 130 declarations using an ID attribute</p>
+            <ul>
+              <li>#global-header .header-wrapper:after</li><li>#global-header .header-wrapper .header-global:after</li><li>#global-header .header-wrapper .header-global .header-logo:after</li><li>#global-header .header-proposition #proposition-link:after</li><li>#global-header .header-proposition #proposition-links:after</li><li>#footer .footer-meta:after</li><li>#global-header-bar</li><li>#global-cookie-message p</li><li>#footer .footer-wrapper</li><li>#global-header-bar</li><li>#global-cookie-message p</li><li>#footer .footer-wrapper</li><li>#global-header-bar</li><li>#global-cookie-message p</li><li>#footer .footer-wrapper</li><li>#global-header .header-wrapper:after</li><li>#global-header .header-wrapper .header-global:after</li>
+            </ul>
+          </div>
+          <div class="output debug">
+            <h3>Debug</h3>
+          </div>
+          <div class="output raw">
+            <h3>Raw</h3>
+          </div>
+        </div>
+      </section>
+
     <div id="overview" class="overview"></div>
     <div id="output"></div>
+  </div>
+
+  <div class="container jsdisabled">
+    <h1 class="title">Sorry, but you must enable JavaScript to use this site</h1>
   </div>
 
   <script src="static/bower_components/jquery/dist/jquery.min.js"></script>
