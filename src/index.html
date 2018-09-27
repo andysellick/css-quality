@@ -16,53 +16,64 @@
 </head>
 
 <body>
-  <div class="container jsenabled">
-    <h1 class="title">CSS Evaluator</h1>
+  <div data-ng-app="cssquality" data-ng-controller="cssController as c" data-ng-init="init()" id="c" class="container jsenabled">
+    <h1 class="title">CSS Evaluator {{ test }}</h1>
 
     <form id="website-form" class="form">
       <label for="website-url">Enter a URL to analyse the CSS on that site:</label>
       <input type="text" id="website-url" class="form__input"/>
-      <button type="submit" id="website-submit" class="btn">Submit</button>
+      <button type="submit" id="website-submit" class="btn" data-ng-click="submitForm()">Submit</button>
     </form>
     <!-- <input type="file" id="file"/> -->
 
-    <section class="details js-toggle">
-      <div class="details__header js-toggle-link">
-        govuk-template-c0b8ba8b1652aacad298d74f24752260187f538b50c40c2484f7f333cbc3cf2b.css<br>Found 1 warnings
-      </div>
-      <div class="details__content js-toggle-content">
-        <div class="">
-          https://assets.publishing.service.gov.uk/static/govuk-template-c0b8ba8b1652aacad298d74f24752260187f538b50c40c2484f7f333cbc3cf2b.css
-          CSS appears to be minified
-          14.4 KiB
-          text/css
-          1 lines long
-          205 class declarations
-          Longest class declaration is 6:
-          #footer .footer-meta .footer-meta-inner .open-government-licence .logo a
-          #footer .footer-meta .footer-meta-inner .open-government-licence .logo a
-          <p>Found 130 declarations using an ID attribute</p>
-            <ul>
-              <li>#global-header .header-wrapper:after</li><li>#global-header .header-wrapper .header-global:after</li><li>#global-header .header-wrapper .header-global .header-logo:after</li><li>#global-header .header-proposition #proposition-link:after</li><li>#global-header .header-proposition #proposition-links:after</li><li>#footer .footer-meta:after</li><li>#global-header-bar</li><li>#global-cookie-message p</li><li>#footer .footer-wrapper</li><li>#global-header-bar</li><li>#global-cookie-message p</li><li>#footer .footer-wrapper</li><li>#global-header-bar</li><li>#global-cookie-message p</li><li>#footer .footer-wrapper</li><li>#global-header .header-wrapper:after</li><li>#global-header .header-wrapper .header-global:after</li>
-            </ul>
+    <div data-ng-if="hasRun">
+      Found {{ cssFiles.length }} CSS files totalling {{ cssFilesSize }} KiB. Some of these files may not be included in page load (why not?).
+    </div>
+
+    <div data-ng-repeat="f in cssFiles">
+      <section class="details js-toggle">
+        <div class="details__header js-toggle-link">
+          {{ f.title }}<br/>
+          Found {{ f.warnings.length }} warnings.
+        </div>
+
+        <div class="details__content js-toggle-content">
+          {{ f.url }} <br/>
+
+          {{ f.isMinified ? 'CSS appears to be minified' : 'CSS does not appear to be minified'}}
+          <br/>
+
+          {{ f.fileType }} <br/>
+          {{ f.noLines }} lines long <br/>
+          Number of declarations is {{ f.noClassDeclarations }}<br/>
+          Longest class declaration is {{ f.longestDeclaration }}<br/>
+
+          <div data-ng-repeat="l in f.longestClasses track by $index">
+            {{ l }}<br/>
           </div>
-          <div class="output debug">
-            <h3>Debug</h3>
+
+          Warnings
+          <div data-ng-repeat="warning in f.warnings">
+            {{ warning.title }} <br/>
+            {{ warning.detail }} <br/>
           </div>
-          <div class="output raw">
-            <h3>Raw</h3>
-          </div>
+
+          <h2>Debug</h2>
+          <p data-ng-hide="1">{{ f.debug }}</p>
+
+
+          <h2>Raw</h2>
+          <p data-ng-hide="1">{{ f.rawCss }}</p>
         </div>
       </section>
-
-    <div id="overview" class="overview"></div>
-    <div id="output"></div>
+    </div>
   </div>
 
   <div class="container jsdisabled">
     <h1 class="title">Sorry, but you must enable JavaScript to use this site</h1>
   </div>
 
+  <script src="static/bower_components/angular/angular.min.js"></script>
   <script src="static/bower_components/jquery/dist/jquery.min.js"></script>
   <script src="static/js/main.min.js"></script>
 </body>

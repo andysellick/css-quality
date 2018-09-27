@@ -1,3 +1,138 @@
+/* globals angular */
+
+angular.module('cssquality', []).controller('cssController', function ($scope,$interval,$timeout,$window) {
+  $scope.cssFiles = [];
+  $scope.cssFilesSize = 0;
+  $scope.hasRun = 0;
+
+  $scope.init = function() {
+  };
+
+  $scope.submitForm = function() {
+    console.log('form submit');
+    var url = document.getElementById('website-url').value;
+
+    // bug - a URL ending in e.g. /index.php breaks, need to trim this off somehow
+
+    if (url.length) {
+      // depends upon http://multiverso.me/AllOrigins/ to avoid CORS problems
+      $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(url) + '&callback=?', function(data){
+        var matches = data.contents.match(/href=[\S]+\.css/g);
+        var matchesLength = matches.length;
+        for (var x = 0; x < matchesLength; x++) {
+          var css = matches[x].replace(/href="/, '');
+          //append the URL if the CSS ref is relative
+          if (css.indexOf('http') === -1) {
+            css = url + css;
+          }
+          $scope.downloadCss(css);
+        }
+      });
+    }
+  };
+
+  $scope.downloadCss = function(css) {
+    $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(css) + '&callback=?', function(data) {
+      var filename = data.status.url.split('/');
+      filename = filename[filename.length - 1];
+      $scope.$apply(function () {
+        $scope.processCssFile(data.contents, filename, css, data.status.content_length, data.status.content_type);
+      });
+    });
+  };
+
+  $scope.processCssFile = function(css, filename, url, filesize, filetype) {
+    var thisFile = {};
+    $scope.hasRun = 1;
+    /*
+    var details = $('<div/>').addClass('output results');
+    var debug = $('<div/>').addClass('output debug').html('<h3>Debug</h3>');
+    var raw = $('<div/>').addClass('output raw').html('<h3>Raw</h3>');
+    var warnings = 0;
+    */
+
+    /* clean up */
+    css = app.removeCssComments(css);
+    css = app.removeMediaQueries(css);
+    var lines = app.splitCssByLines(css);
+
+    /* information */
+
+    //details = app.output(details, url);
+    thisFile.title = filename;
+    thisFile.url = url;
+
+    if (app.cssIsMinified(css)) {
+      thisFile.isMinified = 1;
+    }
+
+    var minifiedCss = app.minifyCss(css); //regardless of whether the CSS appears to be minified, minify it
+    // should we check CSS is valid as well?
+
+    var kib = Math.round((filesize / 1024) * 100) / 100;
+    $scope.cssFilesSize += kib;
+    //$('#totalfilesize').html(parseFloat($('#totalfilesize').html()) + kib);
+
+    //details = app.output(details, kib + ' KiB');
+    //details = app.output(details, filetype);
+    thisFile.fileType = filetype;
+    //details = app.output(details, Math.max(1, (css.match(/\n/g) || []).length) + ' lines long');
+    thisFile.noLines = Math.max(1, (css.match(/\n/g) || []).length);
+
+    var classes = app.getCssDeclarations(minifiedCss);
+    //app.debugoutput = classes.join('<br/>');
+    //details = app.output(details, classes.length + ' class declarations');
+    thisFile.debug = classes.join('<br/>');
+    thisFile.noClassDeclarations = classes.length;
+
+    var longest = app.longestDeclaration(classes);
+    //details = app.output(details, 'Longest class declaration is ' + longest + ':');
+    thisFile.longestDeclaration = longest;
+    //thisFile.classes = '';
+    thisFile.longestClasses = [];
+
+    for (var x = 0; x < classes.length; x++) {
+      if (classes[x].split(' ').length >= longest) {
+        //details = app.output(details, classes[x]);
+        thisFile.longestClasses.push(classes[x]);
+      }
+    }
+
+    /* warnings */
+    thisFile.warnings = [];
+    var ids = app.findIdUsage(classes);
+    var idsLength = ids.length;
+
+    if (idsLength) {
+      var warningId = {};
+      warningId.title = 'Found ' + idsLength + ' declarations using an ID attribute';
+      //warnings++;
+      //var idsText = '<p>Found ' + idsLength + ' declarations using an ID attribute</p><ul>';
+
+      for (var y = 0; y < idsLength; y++) {
+        //idsText = idsText + '<li>' + ids[y] + '</li>';
+      }
+      //idsText = idsText + '</ul>';
+      //details = app.output(details, idsText);
+    }
+
+    /* final output */
+    //debug = app.output(debug, app.debugoutput);
+    //raw = app.output(raw, css);
+    thisFile.rawCss = css;
+
+    //var title = filename;
+    //if (warnings) {
+    //  title = title + '<br/>Found ' + warnings + ' warnings';
+    //}
+
+    //$('#output').append(app.createToggle(title, details.add(debug).add(raw)));
+    //console.log(thisFile);
+    $scope.cssFiles.push(thisFile);
+  };
+});
+
+
 var app = window.app || {};
 
 app = {
@@ -5,7 +140,7 @@ app = {
 
   init: function() {
     'use strict';
-
+    /*
     app.createToggleEvents();
 
     if (this.checkBrowserCompatibility()) {
@@ -20,38 +155,11 @@ app = {
     if (websiteform) {
       websiteform.addEventListener('submit', function(e) {
         e.preventDefault();
-        var url = document.getElementById('website-url').value;
-
-        if (url.length) {
-          // depends upon http://multiverso.me/AllOrigins/ to avoid CORS problems
-          $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(url) + '&callback=?', function(data){
-            var matches = data.contents.match(/href=[\S]+\.css/g);
-            var matchesLength = matches.length;
-            for (var x = 0; x < matchesLength; x++) {
-              var css = matches[x].replace(/href="/, '');
-              //append the URL if the CSS ref is relative
-              if (css.indexOf('http') === -1) {
-                css = url + css;
-              }
-              app.downloadCss(css);
-            }
-
-            var $overview = $('#overview');
-            $overview.html('Found ' + matchesLength + ' CSS files totalling <span id="totalfilesize">0</span> KiB. Some of these files may not be included in page load (why not?).');
-            $('<a/>').addClass('overview__toggle js-show-all').html('Show all').attr('data-toggle', 'closed').appendTo($overview);
-          });
-        }
       });
     }
+    */
   },
 
-  downloadCss: function(css) {
-    $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(css) + '&callback=?', function(data) {
-      var filename = data.status.url.split('/');
-      filename = filename[filename.length - 1];
-      app.processCssFile(data.contents, filename, css, data.status.content_length, data.status.content_type);
-    });
-  },
 
   checkBrowserCompatibility: function() {
     // Check for the various File API support. FIXME won't need to check for all of these?
@@ -75,73 +183,7 @@ app = {
     };
   },
 
-  processCssFile: function(css, filename, url, filesize, filetype) {
-    var details = $('<div/>').addClass('output results');
-    var debug = $('<div/>').addClass('output debug').html('<h3>Debug</h3>');
-    var raw = $('<div/>').addClass('output raw').html('<h3>Raw</h3>');
-    var warnings = 0;
 
-    /* clean up */
-    css = app.removeCssComments(css);
-    css = app.removeMediaQueries(css);
-    var lines = app.splitCssByLines(css);
-
-    /* information */
-    details = app.output(details, url);
-
-    if (app.cssIsMinified(css)) {
-      details = app.output(details, 'CSS appears to be minified');
-    }
-    else {
-      details = app.output(details, 'CSS does not appear to be minified');
-    }
-
-    var minifiedCss = app.minifyCss(css); //regardless of whether the CSS appears to be minified, minify it
-    // should we check CSS is valid as well?
-
-    var kib = Math.round((filesize / 1024) * 100) / 100;
-    $('#totalfilesize').html(parseFloat($('#totalfilesize').html()) + kib);
-
-    details = app.output(details, kib + ' KiB');
-    details = app.output(details, filetype);
-    details = app.output(details, Math.max(1, (css.match(/\n/g) || []).length) + ' lines long');
-
-    var classes = app.getCssDeclarations(minifiedCss);
-    app.debugoutput = classes.join('<br/>');
-    details = app.output(details, classes.length + ' class declarations');
-
-    var longest = app.longestDeclaration(classes);
-    details = app.output(details, 'Longest class declaration is ' + longest + ':');
-    for (var x = 0; x < classes.length; x++) {
-      if (classes[x].split(' ').length >= longest) {
-        details = app.output(details, classes[x]);
-      }
-    }
-
-    /* warnings */
-    var ids = app.findIdUsage(classes);
-    var idsLength = ids.length;
-    if (idsLength) {
-      warnings++;
-      var idsText = '<p>Found ' + idsLength + ' declarations using an ID attribute</p><ul>';
-      for (var y = 0; y < idsLength; y++) {
-        idsText = idsText + '<li>' + ids[y] + '</li>';
-      }
-      idsText = idsText + '</ul>';
-      details = app.output(details, idsText);
-    }
-
-    /* final output */
-    debug = app.output(debug, app.debugoutput);
-    raw = app.output(raw, css);
-
-    var title = filename;
-    if (warnings) {
-      title = title + '<br/>Found ' + warnings + ' warnings';
-    }
-
-    $('#output').append(app.createToggle(title, details.add(debug).add(raw)));
-  },
 
   // given a wrapper element, append content into it
   output: function(wrapper, content, el, className) {
