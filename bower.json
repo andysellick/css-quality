@@ -1,10 +1,11 @@
 {
-  "name": "house-styles",
+  "name": "css-quality",
   "version": "0.0.1",
   "license": "MIT",
   "private": true,
   "devDependencies": {
     "html5shiv": "~3.7.3",
-    "jquery": "~2.1.4"
+    "jquery": "~2.1.4",
+    "angular": "1.4.3"
   }
 }

@@ -46,6 +46,7 @@ var jasmineBrowser = require('gulp-jasmine-browser');
 var cssnano = require('gulp-cssnano');
 var gutil = require('gulp-util');
 var watch = require('gulp-watch');
+var ngannotate = require('gulp-ng-annotate');
 
 /* CSS - LESS */
 function processCss(inputStream, taskType) {
@@ -80,6 +81,7 @@ gulp.task('scripts', ['scripts:moveFiles'], function() {
     .pipe($.jshint.reporter('jshint-stylish'))
     .pipe($.concat('main.js'))
     .pipe($.rename({suffix: '.min'}))
+    .pipe(ngannotate())
     .pipe($.uglify())
     .pipe($.bytediff.stop())
     .pipe(gulp.dest(paths.scripts.dest))
