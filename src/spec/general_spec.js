@@ -1,6 +1,6 @@
 var app = window.app || {};
 
-describe("CSS Quality Checker", function() {
+describe('CSS Quality Checker', function() {
   it('correctly identifies minified CSS as minified', function() {
     var output = app.cssIsMinified('.moo{background-color:"red";');
 

@@ -1,15 +1,17 @@
 /* globals angular */
 
-angular.module('cssquality', []).controller('cssController', function ($scope,$interval,$timeout,$window) {
+angular.module('cssquality', []).controller('cssController', function ($scope) {
   $scope.cssFiles = [];
   $scope.cssFilesSize = 0;
   $scope.hasRun = 0;
+  $scope.showLimit = 5;
 
   $scope.init = function() {
   };
 
   $scope.submitForm = function() {
     console.log('form submit');
+    $scope.cssFiles = [];
     var url = document.getElementById('website-url').value;
 
     // bug - a URL ending in e.g. /index.php breaks, need to trim this off somehow
@@ -44,12 +46,8 @@ angular.module('cssquality', []).controller('cssController', function ($scope,$i
   $scope.processCssFile = function(css, filename, url, filesize, filetype) {
     var thisFile = {};
     $scope.hasRun = 1;
-    /*
-    var details = $('<div/>').addClass('output results');
-    var debug = $('<div/>').addClass('output debug').html('<h3>Debug</h3>');
-    var raw = $('<div/>').addClass('output raw').html('<h3>Raw</h3>');
-    var warnings = 0;
-    */
+
+    thisFile.rawCss = css;
 
     /* clean up */
     css = app.removeCssComments(css);
@@ -61,10 +59,6 @@ angular.module('cssquality', []).controller('cssController', function ($scope,$i
     //details = app.output(details, url);
     thisFile.title = filename;
     thisFile.url = url;
-
-    if (app.cssIsMinified(css)) {
-      thisFile.isMinified = 1;
-    }
 
     var minifiedCss = app.minifyCss(css); //regardless of whether the CSS appears to be minified, minify it
     // should we check CSS is valid as well?
@@ -100,26 +94,30 @@ angular.module('cssquality', []).controller('cssController', function ($scope,$i
 
     /* warnings */
     thisFile.warnings = [];
+    var warning = { 'showAll' : false };
+
+    if (!app.cssIsMinified(css)) {
+      var warningMin = warning;
+      warningMin.title = 'CSS does not appear to be minified';
+      thisFile.warnings.push(warningMin);
+    }
+
     var ids = app.findIdUsage(classes);
     var idsLength = ids.length;
 
     if (idsLength) {
-      var warningId = {};
+      var warningId = warning;
       warningId.title = 'Found ' + idsLength + ' declarations using an ID attribute';
-      //warnings++;
-      //var idsText = '<p>Found ' + idsLength + ' declarations using an ID attribute</p><ul>';
-
-      for (var y = 0; y < idsLength; y++) {
-        //idsText = idsText + '<li>' + ids[y] + '</li>';
-      }
-      //idsText = idsText + '</ul>';
-      //details = app.output(details, idsText);
+      warningId.details = ids.slice(0, $scope.showLimit);
+      warningId.detailsFull = ids.slice($scope.showLimit);
+      thisFile.warnings.push(warningId);
     }
+
+    console.log(thisFile.warnings);
 
     /* final output */
     //debug = app.output(debug, app.debugoutput);
     //raw = app.output(raw, css);
-    thisFile.rawCss = css;
 
     //var title = filename;
     //if (warnings) {
@@ -137,29 +135,6 @@ var app = window.app || {};
 
 app = {
   debugoutput: '',
-
-  init: function() {
-    'use strict';
-    /*
-    app.createToggleEvents();
-
-    if (this.checkBrowserCompatibility()) {
-      var fileinput = document.getElementById('file');
-      if (fileinput) {
-        fileinput.addEventListener('change', app.handleFileSelect, false);
-      }
-    }
-
-    var websiteform = document.getElementById('website-form');
-
-    if (websiteform) {
-      websiteform.addEventListener('submit', function(e) {
-        e.preventDefault();
-      });
-    }
-    */
-  },
-
 
   checkBrowserCompatibility: function() {
     // Check for the various File API support. FIXME won't need to check for all of these?
@@ -303,7 +278,3 @@ app = {
     return matches;
   }
 };
-
-$(document).ready(function() {
-  app.init();
-});

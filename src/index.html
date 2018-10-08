@@ -39,23 +39,37 @@
 
         <div class="details__content js-toggle-content">
           {{ f.url }} <br/>
-
-          {{ f.isMinified ? 'CSS appears to be minified' : 'CSS does not appear to be minified'}}
-          <br/>
-
-          {{ f.fileType }} <br/>
           {{ f.noLines }} lines long <br/>
           Number of declarations is {{ f.noClassDeclarations }}<br/>
           Longest class declaration is {{ f.longestDeclaration }}<br/>
 
-          <div data-ng-repeat="l in f.longestClasses track by $index">
-            {{ l }}<br/>
-          </div>
+          <ul class="standard">
+            <li data-ng-repeat="l in f.longestClasses track by $index">
+              {{ l }}
+            </li>
+          </ul>
 
-          Warnings
+          <h2>{{ f.warnings.length }} Warnings</h2>
           <div data-ng-repeat="warning in f.warnings">
-            {{ warning.title }} <br/>
-            {{ warning.detail }} <br/>
+            <p>{{ warning.title }}</p>
+            <ul class="standard">
+              <li data-ng-repeat="d in warning.details track by $index">
+                {{ d }}
+              </li>
+              <li data-ng-if="warning.detailsFull.length">
+                <a data-ng-click="warning.showAll = !warning.showAll">
+                  <span data-ng-show="!warning.showAll">
+                    Show more
+                  </span>
+                  <span data-ng-show="warning.showAll">
+                    Show fewer
+                  </span>
+                </a>
+              </li>
+              <li data-ng-repeat="d in warning.detailsFull track by $index" data-ng-show="warning.showAll">
+                {{ d }}
+              </li>
+            </ul>
           </div>
 
           <h2>Debug</h2>
@@ -63,7 +77,7 @@
 
 
           <h2>Raw</h2>
-          <p data-ng-hide="1">{{ f.rawCss }}</p>
+          <pre class="raw">{{ f.rawCss }}</pre>
         </div>
       </section>
     </div>

@@ -125,7 +125,7 @@ gulp.task('copyAssets',function(){
 });
 
 gulp.task('jasmine', function() {
-  var filesForTest = [basePaths.src + 'static/bower_components/jquery/dist/jquery.min.js', paths.scripts.src + '**/*.js', paths.spec.src + '**/*_spec.js'];
+  var filesForTest = [basePaths.src + 'static/bower_components/jquery/dist/jquery.min.js', basePaths.src + 'static/bower_components/angular/angular.min.js', paths.scripts.src + '**/*.js', paths.spec.src + '**/*_spec.js'];
   return gulp.src(filesForTest)
     .pipe(watch(filesForTest))
     .pipe(jasmineBrowser.specRunner())
