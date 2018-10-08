@@ -1,8 +1,6 @@
-var app = window.app || {};
-
 describe('CSS Quality Checker', function() {
   it('correctly identifies minified CSS as minified', function() {
-    var output = app.cssIsMinified('.moo{background-color:"red";');
+    var output = fn.cssIsMinified('.moo{background-color:"red";');
 
     expect(output).toBe(true);
   });
@@ -13,7 +11,7 @@ describe('CSS Quality Checker', function() {
         background-color: "red";
       }
     `;
-    var output = app.cssIsMinified(css);
+    var output = fn.cssIsMinified(css);
 
     expect(output).toBe(false);
   });
@@ -28,7 +26,7 @@ a[href^="http://"]:after {
   color: "red";// this is a comment
 // this is another comment
 }`;
-    var output = app.removeCssComments(css);
+    var output = fn.removeCssComments(css);
     var expected = `
 
 .moo,
@@ -51,7 +49,7 @@ a[href^="http://"]:after {
         font-weight:bold;
       }
     `;
-    var output = app.minifyCss(css);
+    var output = fn.minifyCss(css);
     var expected = `.c1,.c2,.c1>.c2,.c1+.c2,.c1~.c2{color:"red";color:'blue';text-align:center;font-weight:bold}`;
 
     expect(output).toEqual(expected);
@@ -71,7 +69,7 @@ only screen and (min-resolution: 2dppx){
   }
 }
 `;
-    var output = app.removeMediaQueries(css);
+    var output = fn.removeMediaQueries(css);
     var expected = `
 
   #global-header .header-wrapper .header-global .header-logo{
@@ -87,7 +85,7 @@ only screen and (min-resolution: 2dppx){
 
   it('splits CSS into separate lines', function() {
     var css = 'html{font-size:62.5%}*{color:black;}body{font-family:sans-serif;font-weight:400}';
-    var output = app.splitCssByLines(css);
+    var output = fn.splitCssByLines(css);
     var expected = [
       'html{font-size:62.5%}',
       '*{color:black;}',
@@ -105,7 +103,7 @@ only screen and (min-resolution: 2dppx){
       'body#id',
       'a[href^="#"]:after'
     ];
-    var output = app.findIdUsage(css);
+    var output = fn.findIdUsage(css);
     var expected = [
       '#id',
       'body#id'
@@ -115,7 +113,7 @@ only screen and (min-resolution: 2dppx){
   });
 
   it('creates a toggle section correctly', function() {
-    var toggle = app.createToggle('My title', 'My content');
+    var toggle = fn.createToggle('My title', 'My content');
     var expected = $('<section class="details js-toggle"><div class="details__header js-toggle-link">My title</div><div class="details__content js-toggle-content" style="display: none;">My content</div></section>');
 
     expect(toggle).toEqual(expected);
