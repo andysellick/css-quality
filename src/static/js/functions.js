@@ -11,7 +11,7 @@ var fn = {
   findDomainFromUrl: function(url) {
     var index = url.search(/[^\/]\/{1}[^\/]/g);
     if (index !== -1) {
-      url = url.substring(0, index + 2);
+      url = url.substring(0, index + 1);
     }
     return url;
   },
@@ -80,7 +80,7 @@ var fn = {
 
   removeCssComments: function(css) {
     css = css.replace(/[^\:\;]+\/\/[\s\S]+?\n+/g, '\n'); // remove // comments, but not strings like http://
-    return css.replace(/\/\*[\s\S]*\*\//g, ''); // remove /* comments */
+    return css.replace(/\/\*[\s\S]*?\*\//g, ''); // remove /* comments */
   },
 
   removeMediaQueries: function(css) {

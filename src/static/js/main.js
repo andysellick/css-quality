@@ -24,7 +24,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
           //append the URL if the CSS ref is relative
           if (css.substring(0, 4) !== 'http') {
             url = fn.findDomainFromUrl(url);
-            css = url + css;
+            css = url + '/' + css;
           }
           $scope.downloadCss(css);
         }
@@ -37,12 +37,12 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
       var filename = data.status.url.split('/');
       filename = filename[filename.length - 1];
       $scope.$apply(function () {
-        $scope.processCssFile(data.contents, filename, css, data.status.content_length, data.status.content_type);
+        $scope.processCssFile(data.contents, filename, css, data.status.content_length);
       });
     });
   };
 
-  $scope.processCssFile = function(css, filename, url, filesize, filetype) {
+  $scope.processCssFile = function(css, filename, url, filesize) {
     var thisFile = {};
     $scope.hasRun = 1;
 
@@ -66,9 +66,6 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     $scope.cssFilesSize += kib;
     //$('#totalfilesize').html(parseFloat($('#totalfilesize').html()) + kib);
 
-    //details = fn.output(details, kib + ' KiB');
-    //details = fn.output(details, filetype);
-    thisFile.fileType = filetype;
     //details = fn.output(details, Math.max(1, (css.match(/\n/g) || []).length) + ' lines long');
     thisFile.noLines = Math.max(1, (css.match(/\n/g) || []).length);
 
@@ -93,26 +90,24 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
 
     /* warnings */
     thisFile.warnings = [];
-    var warning = { 'showAll' : false };
 
     if (!fn.cssIsMinified(css)) {
-      var warningMin = warning;
+      var warningMin = { 'showAll' : false };
       warningMin.title = 'CSS does not appear to be minified';
       thisFile.warnings.push(warningMin);
     }
 
     var ids = fn.findIdUsage(classes);
+    console.log(classes, ids)
     var idsLength = ids.length;
 
     if (idsLength) {
-      var warningId = warning;
+      var warningId = { 'showAll' : false };
       warningId.title = 'Found ' + idsLength + ' declarations using an ID attribute';
       warningId.details = ids.slice(0, $scope.showLimit);
       warningId.detailsFull = ids.slice($scope.showLimit);
       thisFile.warnings.push(warningId);
     }
-
-    console.log(thisFile.warnings);
 
     /* final output */
     //debug = fn.output(debug, fn.debugoutput);

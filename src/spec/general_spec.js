@@ -19,6 +19,7 @@ describe('CSS Quality Checker', function() {
   it('removes CSS comments', function() {
     var css = `
 /* this is a comment*/
+.classname {}
 /* this is a comment
 over several lines */
 .moo,
@@ -28,6 +29,8 @@ a[href^="http://"]:after {
 }`;
     var output = fn.removeCssComments(css);
     var expected = `
+
+.classname {}
 
 .moo,
 a[href^="http://"]:after {
@@ -121,12 +124,12 @@ only screen and (min-resolution: 2dppx){
 
   it('finds the domain part of URLs', function() {
     var url = fn.findDomainFromUrl('http://www.quantpole.co.uk/index.php');
-    var expected = 'http://www.quantpole.co.uk/';
+    var expected = 'http://www.quantpole.co.uk';
 
     expect(url).toEqual(expected);
 
     url = fn.findDomainFromUrl('http://www.quantpole.co.uk/browse/index.php');
-    expected = 'http://www.quantpole.co.uk/';
+    expected = 'http://www.quantpole.co.uk';
 
     expect(url).toEqual(expected);
   });
