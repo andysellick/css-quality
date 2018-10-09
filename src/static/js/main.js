@@ -14,8 +14,6 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     $scope.cssFiles = [];
     var url = document.getElementById('website-url').value;
 
-    // bug - a URL ending in e.g. /index.php breaks, need to trim this off somehow
-
     if (url.length) {
       // depends upon http://multiverso.me/AllOrigins/ to avoid CORS problems
       $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(url) + '&callback=?', function(data){
@@ -24,7 +22,8 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
         for (var x = 0; x < matchesLength; x++) {
           var css = matches[x].replace(/href="/, '');
           //append the URL if the CSS ref is relative
-          if (css.indexOf('http') === -1) {
+          if (css.substring(0, 4) !== 'http') {
+            url = fn.findDomainFromUrl(url);
             css = url + css;
           }
           $scope.downloadCss(css);

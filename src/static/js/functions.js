@@ -8,6 +8,15 @@ var fn = {
     }
   },
 
+  findDomainFromUrl: function(url) {
+    var index = url.search(/[^\/]\/{1}[^\/]/g);
+    if (index !== -1) {
+      url = url.substring(0, index + 2);
+    }
+    return url;
+  },
+
+  // remove any superfluous url from the URL e.g. trim off /index.php
   handleFileSelect: function(e) {
     var reader = new FileReader();
     var files = e.target.files;
