@@ -27,7 +27,9 @@
     <!-- <input type="file" id="file"/> -->
 
     <div data-ng-if="hasRun">
-      Found {{ cssFiles.length }} CSS files totalling {{ cssFilesSize }} KiB. Some of these files may not be included in page load (why not?).
+      Found {{ cssFiles.length }} CSS files totalling {{ cssFilesSize }} KiB. Some of these files may not be included in page load (<a data-ng-click="showWhyNot = !showWhyNot">why not?</a>).
+
+      <p data-ng-show="showWhyNot">This tool analyses any CSS files in the source of the page it is given, regardless of whether they are browser specific or not. It does not analyse any CSS that is inline or loaded dynamically.</p>
     </div>
 
     <div data-ng-repeat="f in cssFiles">
@@ -52,21 +54,23 @@
           <h2>{{ f.warnings.length }} Warnings</h2>
           <div data-ng-repeat="warning in f.warnings">
             <p>{{ warning.title }}</p>
-            <ul class="standard">
+            <a data-ng-if="warning.explain.length"
+              data-ng-click="warning.showExplain = !warning.showExplain">
+              <span data-ng-show="!warning.showExplain">Show explanation</span>
+              <span data-ng-show="warning.showExplain">Hide explanation</span>
+            </a>
+            <a data-ng-if="warning.details.length"
+              data-ng-click="warning.showDetails = !warning.showDetails">
+              <span data-ng-show="!warning.showDetails">Show details</span>
+              <span data-ng-show="warning.showDetails">Hide details</span>
+            </a>
+
+            <div data-ng-show="warning.showExplain">
+              {{ warning.explain }}
+            </div>
+
+            <ul class="standard" data-ng-show="warning.showDetails">
               <li data-ng-repeat="d in warning.details track by $index">
-                {{ d }}
-              </li>
-              <li data-ng-if="warning.detailsFull.length">
-                <a data-ng-click="warning.showAll = !warning.showAll">
-                  <span data-ng-show="!warning.showAll">
-                    Show more
-                  </span>
-                  <span data-ng-show="warning.showAll">
-                    Show fewer
-                  </span>
-                </a>
-              </li>
-              <li data-ng-repeat="d in warning.detailsFull track by $index" data-ng-show="warning.showAll">
                 {{ d }}
               </li>
             </ul>

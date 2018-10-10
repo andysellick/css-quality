@@ -4,7 +4,6 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
   $scope.cssFiles = [];
   $scope.cssFilesSize = 0;
   $scope.hasRun = 0;
-  $scope.showLimit = 5;
 
   $scope.init = function() {
   };
@@ -92,20 +91,20 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     thisFile.warnings = [];
 
     if (!fn.cssIsMinified(css)) {
-      var warningMin = { 'showAll' : false };
+      var warningMin = {};
       warningMin.title = 'CSS does not appear to be minified';
+      warningMin.explain = 'File size could be significantly reduced';
       thisFile.warnings.push(warningMin);
     }
 
     var ids = fn.findIdUsage(classes);
-    console.log(classes, ids)
     var idsLength = ids.length;
 
     if (idsLength) {
-      var warningId = { 'showAll' : false };
+      var warningId = {};
       warningId.title = 'Found ' + idsLength + ' declarations using an ID attribute';
-      warningId.details = ids.slice(0, $scope.showLimit);
-      warningId.detailsFull = ids.slice($scope.showLimit);
+      warningId.details = ids;
+      warningId.explain = 'breaks inheritance tree';
       thisFile.warnings.push(warningId);
     }
 
