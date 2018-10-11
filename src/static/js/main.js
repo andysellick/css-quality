@@ -59,6 +59,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     // should we check CSS is valid as well?
 
     var kib = Math.round((filesize / 1024) * 100) / 100;
+    thisFile.fileSize = kib;
     $scope.cssFilesSize += kib;
 
     thisFile.noLines = Math.max(1, (css.match(/\n/g) || []).length); // FIXME this isn't working

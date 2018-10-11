@@ -83,6 +83,9 @@ var fn = {
   getCssDeclarations: function(css) {
     var lines = css.replace(/\{([\s\S]*?)\}/g,','); //replace { .. } with comma
     lines = lines.split(','); //then split on commas, also will include comma separated declarations
+    lines = lines.filter(function (el) {
+      return el !== '';
+    });
     return lines;
   },
 
