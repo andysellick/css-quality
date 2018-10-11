@@ -1,12 +1,9 @@
-/* globals angular */
+/* globals angular, fn */
 
 angular.module('cssquality', []).controller('cssController', function ($scope) {
   $scope.cssFiles = [];
   $scope.cssFilesSize = 0;
   $scope.hasRun = 0;
-
-  $scope.init = function() {
-  };
 
   $scope.submitForm = function() {
     console.log('form submit');
@@ -63,26 +60,19 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
 
     var kib = Math.round((filesize / 1024) * 100) / 100;
     $scope.cssFilesSize += kib;
-    //$('#totalfilesize').html(parseFloat($('#totalfilesize').html()) + kib);
 
-    //details = fn.output(details, Math.max(1, (css.match(/\n/g) || []).length) + ' lines long');
-    thisFile.noLines = Math.max(1, (css.match(/\n/g) || []).length);
+    thisFile.noLines = Math.max(1, (css.match(/\n/g) || []).length); // FIXME this isn't working
 
     var classes = fn.getCssDeclarations(minifiedCss);
-    //fn.debugoutput = classes.join('<br/>');
-    //details = fn.output(details, classes.length + ' class declarations');
     thisFile.debug = classes.join('<br/>');
     thisFile.noClassDeclarations = classes.length;
 
     var longest = fn.longestDeclaration(classes);
-    //details = fn.output(details, 'Longest class declaration is ' + longest + ':');
     thisFile.longestDeclaration = longest;
-    //thisFile.classes = '';
     thisFile.longestClasses = [];
 
     for (var x = 0; x < classes.length; x++) {
       if (classes[x].split(' ').length >= longest) {
-        //details = fn.output(details, classes[x]);
         thisFile.longestClasses.push(classes[x]);
       }
     }
@@ -109,16 +99,6 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     }
 
     /* final output */
-    //debug = fn.output(debug, fn.debugoutput);
-    //raw = fn.output(raw, css);
-
-    //var title = filename;
-    //if (warnings) {
-    //  title = title + '<br/>Found ' + warnings + ' warnings';
-    //}
-
-    //$('#output').append(fn.createToggle(title, details.add(debug).add(raw)));
-    //console.log(thisFile);
     $scope.cssFiles.push(thisFile);
   };
 });

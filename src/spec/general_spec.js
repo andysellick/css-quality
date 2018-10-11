@@ -1,3 +1,5 @@
+/* globals fn, it, describe, expect */
+
 describe('CSS Quality Checker', function() {
   it('correctly identifies minified CSS as minified', function() {
     var output = fn.cssIsMinified('.moo{background-color:"red";');
@@ -113,13 +115,6 @@ only screen and (min-resolution: 2dppx){
     ];
 
     expect(output).toEqual(expected);
-  });
-
-  it('creates a toggle section correctly', function() {
-    var toggle = fn.createToggle('My title', 'My content');
-    var expected = $('<section class="details js-toggle"><div class="details__header js-toggle-link">My title</div><div class="details__content js-toggle-content" style="display: none;">My content</div></section>');
-
-    expect(toggle).toEqual(expected);
   });
 
   it('finds the domain part of URLs', function() {

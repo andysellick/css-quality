@@ -16,7 +16,7 @@
 </head>
 
 <body>
-  <div data-ng-app="cssquality" data-ng-controller="cssController as c" data-ng-init="init()" id="c" class="container jsenabled">
+  <div data-ng-app="cssquality" data-ng-controller="cssController as c" id="c" class="container jsenabled">
     <h1 class="title">CSS Evaluator {{ test }}</h1>
 
     <form id="website-form" class="form">
@@ -40,8 +40,8 @@
         </div>
 
         <div class="details__content js-toggle-content">
-          {{ f.url }} <br/>
-          {{ f.noLines }} lines long <br/>
+          <a href="{{ f.url }}" target="_blank">View original</a> <br/>
+          {{ f.noLines }} line<span data-ng-show="f.noLines > 1">s</span> long <br/>
           Number of declarations is {{ f.noClassDeclarations }}<br/>
           Longest class declaration is {{ f.longestDeclaration }}<br/>
 
@@ -78,7 +78,6 @@
 
           <h2>Debug</h2>
           <p data-ng-hide="1">{{ f.debug }}</p>
-
 
           <h2>Raw</h2>
           <pre class="raw">{{ f.rawCss }}</pre>

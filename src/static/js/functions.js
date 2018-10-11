@@ -1,6 +1,4 @@
 var fn = {
-  debugoutput: '',
-
   checkBrowserCompatibility: function() {
     // Check for the various File API support. FIXME won't need to check for all of these?
     if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -30,44 +28,6 @@ var fn = {
     reader.onerror = function (e) {
       document.getElementById('results').innerHTML = 'error reading file';
     };
-  },
-
-  // given a wrapper element, append content into it
-  output: function(wrapper, content, el, className) {
-    if (el) {
-      content = $(el).addClass(className).html(content);
-    }
-    else {
-      content = content + '\n';
-    }
-    wrapper.html(wrapper.html() + content);
-    return wrapper;
-  },
-
-  createToggle: function(title, content) {
-    var $wrapper = $('<section/>').addClass('details js-toggle');
-    var $header = $('<div/>').addClass('details__header js-toggle-link').html(title);
-    var $content = $('<div/>').addClass('details__content js-toggle-content').html(content).hide();
-    $wrapper.append($header, $content);
-    return $wrapper;
-  },
-
-  createToggleEvents: function() {
-    $('#overview').on('click', '.js-show-all', function(e) {
-      e.preventDefault();
-      if ($(this).attr('data-toggle') === 'closed') {
-        $('.js-toggle-content').show();
-        $(this).attr('data-toggle', 'open').text('Hide all');
-      }
-      else {
-        $('.js-toggle-content').hide();
-        $(this).attr('data-toggle', 'closed').text('Show all');
-      }
-    });
-
-    $('#output').on('click', '.js-toggle-link', function() {
-      $(this).closest('.js-toggle').find('.js-toggle-content').toggle();
-    });
   },
 
   cssIsMinified: function(css) {
