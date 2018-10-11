@@ -27,25 +27,25 @@
     <!-- <input type="file" id="file"/> -->
 
     <div data-ng-if="hasRun">
-      Found {{ cssFiles.length }} CSS files totalling {{ cssFilesSize }} KiB. Some of these files may not be included in page load (<a data-ng-click="showWhyNot = !showWhyNot">why not?</a>).
+      <p>Found {{ cssFiles.length }} CSS file<span data-ng-show="f.noLines > 1">s</span> totalling {{ cssFilesSize }} KiB. Some files may not be included in page load (<a data-ng-click="showWhyNot = !showWhyNot">why not?</a>).</p>
 
-      <p data-ng-show="showWhyNot">This tool analyses any CSS files in the source of the page it is given, regardless of whether they are browser specific or not. It does not analyse any CSS that is inline or loaded dynamically.</p>
+      <p data-ng-show="showWhyNot">This tool analyses any CSS files in the source of the page it is given and ignores browser conditional comments. It does not analyse any CSS that is inline or loaded dynamically.</p>
     </div>
 
     <div data-ng-repeat="f in cssFiles">
-      <section class="details js-toggle">
-        <div class="details__header js-toggle-link">
-          {{ f.title }}<br/>
-          Found {{ f.warnings.length }} warnings.
+      <section class="css">
+        <div class="css__header" data-ng-click="f.showAll = !f.showAll">
+          <span class="css__name">{{ f.title }}</span>
+          <span class="css_filesize">{{ f.fileSize }} KiB</span>
+          <span class="css_warnings">Found {{ f.warnings.length }} warning<span data-ng-show="f.warnings.length > 1 || f.warnings.length == 0">s</span></span>
         </div>
 
-        <div class="details__content js-toggle-content">
-          <a href="{{ f.url }}" target="_blank">View original</a> <br/>
-          {{ f.fileSize }} KiB <br/>
-          {{ f.noLines }} line<span data-ng-show="f.noLines > 1">s</span> long <br/>
+        <div class="css__content" data-ng-show="f.showAll">
+          <p><a href="{{ f.url }}" target="_blank">View original</a></p>
+          <p>{{ f.noLines }} line<span data-ng-show="f.noLines > 1">s</span> long</p>
 
-          Number of declarations is {{ f.noClassDeclarations }}<br/>
-          Longest class declaration is {{ f.longestDeclaration }}<br/>
+          <p>Number of declarations is {{ f.noClassDeclarations }}</p>
+          <p>Longest class declaration is {{ f.longestDeclaration }}</p>
           <a data-ng-click="f.showLongestDeclarations = !f.showLongestDeclarations">Show</a>
 
           <ul class="standard" data-ng-show="f.showLongestDeclarations">
@@ -68,9 +68,9 @@
               <span data-ng-show="warning.showDetails">Hide details</span>
             </a>
 
-            <div data-ng-show="warning.showExplain">
+            <p data-ng-show="warning.showExplain">
               {{ warning.explain }}
-            </div>
+            </p>
 
             <ul class="standard" data-ng-show="warning.showDetails">
               <li data-ng-repeat="d in warning.details track by $index">
@@ -78,9 +78,6 @@
               </li>
             </ul>
           </div>
-
-          <h2>Debug</h2>
-          <p data-ng-hide="1">{{ f.debug }}</p>
 
           <h2>Raw</h2>
           <pre class="raw">{{ f.rawCss }}</pre>

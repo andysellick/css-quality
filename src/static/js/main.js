@@ -65,7 +65,6 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     thisFile.noLines = Math.max(1, (css.match(/\n/g) || []).length); // FIXME this isn't working
 
     var classes = fn.getCssDeclarations(minifiedCss);
-    thisFile.debug = classes.join('<br/>');
     thisFile.noClassDeclarations = classes.length;
 
     var longest = fn.longestDeclaration(classes);
