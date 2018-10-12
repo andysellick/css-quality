@@ -48,6 +48,8 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     css = fn.removeCssComments(css);
     css = fn.removeMediaQueries(css);
     var lines = fn.splitCssByLines(css);
+    var minifiedCss = fn.minifyCss(css); //regardless of whether the CSS appears to be minified, minify it
+    // should we check CSS is valid as well?
 
     /* information */
 
@@ -55,8 +57,8 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     thisFile.title = filename;
     thisFile.url = url;
 
-    var minifiedCss = fn.minifyCss(css); //regardless of whether the CSS appears to be minified, minify it
-    // should we check CSS is valid as well?
+    //var cssArray = fn.convertMinifiedCssToArray(minifiedCss);
+    //console.log(fn.convertCssToObject(cssArray));
 
     var kib = Math.round((filesize / 1024) * 100) / 100;
     thisFile.fileSize = kib;
@@ -97,7 +99,18 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
       warningId.explain = 'breaks inheritance tree';
       thisFile.warnings.push(warningId);
     }
+/*
+    var important = fn.findImportantUsage(lines);
+    var importantLength = important.length;
 
+    if(importantLength) {
+      var warningImportant = {};
+      warningImportant.title = 'Found ' + importantLength + ' uses of !important';
+      warningImportant.details = important;
+      warningImportant.explain = 'overrides cascading, suggests CSS not well structured';
+      thisFile.warnings.push(warningImportant);
+    }
+*/
     /* final output */
     $scope.cssFiles.push(thisFile);
   };

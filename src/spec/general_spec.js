@@ -88,6 +88,78 @@ only screen and (min-resolution: 2dppx){
     expect(output).toEqual(expected);
   });
 
+  it('converts minified CSS into an array', function() {
+    var css = '.noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none}.invisible,.totallyinvisible{position:absolute;left:-100000px;width:1px;height:1px;overflow:hidden;outline:0}.invisible:focus{position:static;width:auto;height:auto}a,address,article,aside,blockquote,body,button,dd,details,div,dl,dt,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,input,label,legend,li,main,menu,nav,ol,p,section,span,table,tbody,td,tfoot,th,thead,tr,ul{padding:0;margin:0;border:0;background:none;font-style:normal;font-weight:400;outline:0}button{-webkit-appearance:none}';
+    var output = fn.convertMinifiedCssToArray(css);
+    var expected = [
+      '.noselect{',
+      '-webkit-touch-callout:none;',
+      '-webkit-user-select:none;',
+      '-khtml-user-select:none;',
+      '-moz-user-select:none;',
+      '-ms-user-select:none',
+      '}',
+      '.invisible,.totallyinvisible{',
+      'position:absolute;',
+      'left:-100000px;',
+      'width:1px;',
+      'height:1px;',
+      'overflow:hidden;',
+      'outline:0',
+      '}',
+      '.invisible:focus{',
+      'position:static;',
+      'width:auto;',
+      'height:auto',
+      '}',
+      'a,address,article,aside,blockquote,body,button,dd,details,div,dl,dt,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,input,label,legend,li,main,menu,nav,ol,p,section,span,table,tbody,td,tfoot,th,thead,tr,ul{',
+      'padding:0;',
+      'margin:0;',
+      'border:0;',
+      'background:none;',
+      'font-style:normal;',
+      'font-weight:400;',
+      'outline:0',
+      '}',
+      'button{',
+      '-webkit-appearance:none',
+      '}'
+    ];
+
+    expect(output).toEqual(expected);
+  });
+
+  it('converts CSS into an object', function() {
+    var css = [
+      '.class1 {',
+      'border: solid 1px red;',
+      'background: green',
+      '}',
+      '.class2, .class3 .class4 {',
+      'border: dotted 4px black;',
+      'background: orange',
+      '}'
+    ];
+    var output = fn.convertCssToObject(css);
+    var expected = [
+      {
+        'selector': '.class1 {',
+        'properties': [
+          'border: solid 1px red;',
+          'background: green'
+        ]
+      },
+      {
+        'selector': '.class2, .class3 .class4 {',
+        'properties': [
+          'border: dotted 4px black;',
+          'background: orange',
+        ]
+      }
+    ];
+    expect(output).toEqual(expected);
+  });
+
   it('splits CSS into separate lines', function() {
     var css = 'html{font-size:62.5%}*{color:black;}body{font-family:sans-serif;font-weight:400}';
     var output = fn.splitCssByLines(css);
@@ -116,7 +188,17 @@ only screen and (min-resolution: 2dppx){
 
     expect(output).toEqual(expected);
   });
+/*
+  it('finds uses of !important in CSS', function() {
+    var lines = [
+    ];
+    var output = fn.findImportantUsage(lines);
+    var expected = [
+    ];
 
+    expect(output).toEqual(expected);
+  });
+*/
   it('finds the domain part of URLs', function() {
     var url = fn.findDomainFromUrl('http://www.quantpole.co.uk/index.php');
     var expected = 'http://www.quantpole.co.uk';

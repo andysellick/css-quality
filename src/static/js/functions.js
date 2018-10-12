@@ -89,6 +89,51 @@ var fn = {
     return lines;
   },
 
+  // given a chunk of minified CSS, turn it into an array of each line
+  convertMinifiedCssToArray: function(css) {
+    var uniqueChar = 'MOOOOOOO';
+    css = css.replace(/{/g, '{' + uniqueChar);
+    css = css.replace(/;/g, ';' + uniqueChar);
+    css = css.replace(/}/g, uniqueChar + '}' + uniqueChar);
+    css = css.split(uniqueChar);
+    return css.slice(0, -1);
+  },
+
+  // converts an array of CSS lines into a structured object of the CSS, of the form
+  // assumes all selectors are on one line, even if comma separated
+  /*
+    [
+      {
+        'selector': '.element .thing',
+        'properties': [
+          'border: solid 1px red;',
+          'background: green !important'
+        ]
+      }
+    ]
+  */
+  convertCssToObject: function(css) {
+    var output = [];
+    for (var x = 0; x < css.length; x++) {
+      var thisobj = {};
+      // if this is a selector, i.e. ends with {
+      if (css[x].slice(-1) === '{') {
+        thisobj.selector = css[x]; // fixme trim off the { ?
+        x++;
+        var properties = [];
+
+        // while the next line is not the end of the selector, i.e. }
+        while(css[x] !== '}') {
+          properties.push(css[x]);
+          x++;
+        }
+        thisobj.properties = properties;
+        output.push(thisobj);
+      }
+    }
+    return output;
+  },
+
   longestDeclaration: function(lines) {
     var longest = 0;
     var longestCSS = [];
@@ -111,5 +156,16 @@ var fn = {
       }
     }
     return matches;
+  },
+
+  // returns all uses of !important
+  findImportantUsage: function(lines) {
+    console.log(lines);
+    var matches = [];
+    for (var x = 0; x < lines.length; x++) {
+      if (lines[x].match) {
+        matches.push(lines[x]);
+      }
+    }
   }
 };
