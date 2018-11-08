@@ -95,12 +95,12 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     }
 
     var warningId = {};
-    warningId.title = 'Found declarations using an ID attribute';
+    warningId.title = 'declarations using an ID attribute';
     warningId.explain = 'breaks inheritance tree';
     warningId.details = [];
 
     var warningImportant = {};
-    warningImportant.title = 'Found properties using !important';
+    warningImportant.title = 'properties using !important';
     warningImportant.explain = 'breaks inheritance tree';
     warningImportant.details = [];
 
@@ -121,16 +121,17 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
       for (var d = 0; d < warnDeclarationsFunctions.length; d++) {
         var dresult = warnDeclarationsFunctions[d](declaration);
         if (dresult) {
-          warnDeclarations[d].details.push(dresult);
+          warnDeclarations[d].details.push('Line ' + line + ': ' + dresult);
         }
       }
 
       // test each property for warnings
       for (var p = 0; p < warnPropertiesFunctions.length; p++) {
         for (var i = 0; i < properties.length; i++) {
+          line++;
           var presult = warnPropertiesFunctions[p](properties[i]);
           if (presult) {
-            warnProperties[p].details.push(presult);
+            warnProperties[p].details.push('Line ' + line + ': ' +presult);
           }
         }
       }

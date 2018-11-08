@@ -138,6 +138,9 @@ only screen and (min-resolution: 2dppx){
       '.class2, .class3 .class4 {',
       'border: dotted 4px black;',
       'background: orange',
+      '}',
+      '.class5 {',
+      'background: red',
       '}'
     ];
     var output = fn.convertCssToObject(css);
@@ -156,6 +159,13 @@ only screen and (min-resolution: 2dppx){
         'properties': [
           'border: dotted 4px black;',
           'background: orange',
+        ]
+      },
+      {
+        'selector': '.class5',
+        'line': 10,
+        'properties': [
+          'background: red',
         ]
       }
     ];

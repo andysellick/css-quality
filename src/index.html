@@ -57,8 +57,10 @@
           </ul>
 
           <h2>{{ f.warnings.length }} warnings</h2>
+          <p>Line numbers are approximate.</p>
           <div data-ng-repeat="warning in f.warnings track by $index">
             <p>
+              <span data-ng-if="warning.details.length">Found {{ warning.details.length }}</span>
               {{ warning.title }}
               <a data-ng-if="warning.explain.length"
                 data-ng-click="warning.showExplain = !warning.showExplain">

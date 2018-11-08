@@ -123,7 +123,8 @@ var fn = {
       if (css[x].slice(-1) === '{') {
         thisobj.selector = css[x].replace('{', '').trim(); // fixme trim off the { ?
         thisobj.line = line;
-        line++;
+        line += thisobj.selector.split(",").length || 1; // increment the line number assuming selectors are on different lines
+        //line++;
         x++;
         var properties = [];
 
