@@ -17,9 +17,14 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
         var matchesLength = matches.length;
         for (var x = 0; x < matchesLength; x++) {
           var css = matches[x].replace(/href="/, '');
-          //append the URL if the CSS ref is relative
+
+          // append the URL if the CSS ref is not absolute
           if (css.substring(0, 4) !== 'http') {
-            url = fn.findDomainFromUrl(url);
+            // if the CSS is not relative to the current path e.g. '/static/style.css'
+            // convert URL to be the base URL only
+            if (css.substring(0, 1) === '/') {
+              url = fn.findDomainFromUrl(url);
+            }
             css = url + '/' + css;
           }
           $scope.downloadCss(css);
@@ -138,7 +143,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
       }
     }
 
-    for (var w = 0; w < warnProperties.length; w++) {
+    for (w = 0; w < warnProperties.length; w++) {
       if (warnProperties[w].details.length) {
         thisFile.warnings.push(warnProperties[w]);
       }

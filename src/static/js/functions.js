@@ -6,6 +6,7 @@ var fn = {
     }
   },
 
+  // get the URL as the string up to the first instance of '/'
   findDomainFromUrl: function (url) {
     var index = url.search(/[^\/]\/{1}[^\/]/g);
     if (index !== -1) {
