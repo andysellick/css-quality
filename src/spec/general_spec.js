@@ -143,7 +143,7 @@ only screen and (min-resolution: 2dppx){
     var output = fn.convertCssToObject(css);
     var expected = [
       {
-        'selector': '.class1 {',
+        'selector': '.class1',
         'line': 1,
         'properties': [
           'border: solid 1px red;',
@@ -151,7 +151,7 @@ only screen and (min-resolution: 2dppx){
         ]
       },
       {
-        'selector': '.class2, .class3 .class4 {',
+        'selector': '.class2, .class3 .class4',
         'line': 5,
         'properties': [
           'border: dotted 4px black;',

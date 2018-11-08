@@ -121,7 +121,7 @@ var fn = {
       var thisobj = {};
       // if this is a selector, i.e. ends with {
       if (css[x].slice(-1) === '{') {
-        thisobj.selector = css[x]; // fixme trim off the { ?
+        thisobj.selector = css[x].replace('{', '').trim(); // fixme trim off the { ?
         thisobj.line = line;
         line++;
         x++;
