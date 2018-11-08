@@ -129,7 +129,7 @@ only screen and (min-resolution: 2dppx){
     expect(output).toEqual(expected);
   });
 
-  it('converts CSS into an object', function() {
+  it('converts CSS into an array of objects', function() {
     var css = [
       '.class1 {',
       'border: solid 1px red;',
@@ -144,6 +144,7 @@ only screen and (min-resolution: 2dppx){
     var expected = [
       {
         'selector': '.class1 {',
+        'line': 1,
         'properties': [
           'border: solid 1px red;',
           'background: green'
@@ -151,6 +152,7 @@ only screen and (min-resolution: 2dppx){
       },
       {
         'selector': '.class2, .class3 .class4 {',
+        'line': 5,
         'properties': [
           'border: dotted 4px black;',
           'background: orange',
@@ -188,17 +190,24 @@ only screen and (min-resolution: 2dppx){
 
     expect(output).toEqual(expected);
   });
-/*
-  it('finds uses of !important in CSS', function() {
-    var lines = [
-    ];
-    var output = fn.findImportantUsage(lines);
-    var expected = [
-    ];
 
+  it('finds uses of !important in CSS', function() {
+    var line = 'border: solid 1px red !important;';
+    var output = fn.findImportantUsageInProperties(line);
+    var expected = 'border: solid 1px red !important;';
+    expect(output).toEqual(expected);
+
+    line = 'border: solid 1px red ! important;';
+    output = fn.findImportantUsageInProperties(line);
+    expected = 'border: solid 1px red ! important;';
+    expect(output).toEqual(expected);
+
+    line = 'border: solid 1px red;';
+    output = fn.findImportantUsageInProperties(line);
+    expected = false;
     expect(output).toEqual(expected);
   });
-*/
+
   it('finds the domain part of URLs', function() {
     var url = fn.findDomainFromUrl('http://www.quantpole.co.uk/index.php');
     var expected = 'http://www.quantpole.co.uk';

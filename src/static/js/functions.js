@@ -1,12 +1,12 @@
 var fn = {
-  checkBrowserCompatibility: function() {
+  checkBrowserCompatibility: function () {
     // Check for the various File API support. FIXME won't need to check for all of these?
     if (window.File && window.FileReader && window.FileList && window.Blob) {
       return true;
     }
   },
 
-  findDomainFromUrl: function(url) {
+  findDomainFromUrl: function (url) {
     var index = url.search(/[^\/]\/{1}[^\/]/g);
     if (index !== -1) {
       url = url.substring(0, index + 1);
@@ -15,7 +15,7 @@ var fn = {
   },
 
   // remove any superfluous url from the URL e.g. trim off /index.php
-  handleFileSelect: function(e) {
+  handleFileSelect: function (e) {
     var reader = new FileReader();
     var files = e.target.files;
     var file = files[0];
@@ -30,7 +30,7 @@ var fn = {
     };
   },
 
-  cssIsMinified: function(css) {
+  cssIsMinified: function (css) {
     if ((css.match(/\n/g) || []).length > 1 || (css.match(/\t/g) || []).length > 0) {
       return false;
     } else {
@@ -38,12 +38,12 @@ var fn = {
     }
   },
 
-  removeCssComments: function(css) {
+  removeCssComments: function (css) {
     css = css.replace(/[^\:\;]+\/\/[\s\S]+?\n+/g, '\n'); // remove // comments, but not strings like http://
     return css.replace(/\/\*[\s\S]*?\*\//g, ''); // remove /* comments */
   },
 
-  removeMediaQueries: function(css) {
+  removeMediaQueries: function (css) {
     // remove any lines starting @ (something){ but not @font or @-ms-
     css = css.replace(/@{1}(?!font)(?!-ms)[\s\S][^\{]*\{/g, '');
     // remove any double }} (end of media query), only instance of a double }}? FIXME check
@@ -51,7 +51,7 @@ var fn = {
   },
 
   // note that this doesn't properly minify the CSS - only as far as we need to for analysing it
-  minifyCss: function(css) {
+  minifyCss: function (css) {
     css = css.trim();
     css = css.replace(/\n/g, ''); //remove newlines
     css = css.replace(/\t/g, ''); //remove tabs
@@ -72,7 +72,7 @@ var fn = {
   },
 
   // should return an array of e.g. '.class{style:value}'
-  splitCssByLines: function(css) {
+  splitCssByLines: function (css) {
     css = css.replace(/\}/g, '\}#\}');
     var lines = css.split('#}');
     lines = lines.filter(function(n){ return n !== ''; }); // remove empty elements
@@ -80,7 +80,7 @@ var fn = {
   },
 
   // returns an array of all declarations e.g. ['.class', '.class2 ol']
-  getCssDeclarations: function(css) {
+  getCssDeclarations: function (css) {
     var lines = css.replace(/\{([\s\S]*?)\}/g,','); //replace { .. } with comma
     lines = lines.split(','); //then split on commas, also will include comma separated declarations
     lines = lines.filter(function (el) {
@@ -90,7 +90,7 @@ var fn = {
   },
 
   // given a chunk of minified CSS, turn it into an array of each line
-  convertMinifiedCssToArray: function(css) {
+  convertMinifiedCssToArray: function (css) {
     var uniqueChar = 'MOOOOOOO';
     css = css.replace(/{/g, '{' + uniqueChar);
     css = css.replace(/;/g, ';' + uniqueChar);
@@ -105,6 +105,7 @@ var fn = {
     [
       {
         'selector': '.element .thing',
+        'line': 1,
         'properties': [
           'border: solid 1px red;',
           'background: green !important'
@@ -112,29 +113,34 @@ var fn = {
       }
     ]
   */
-  convertCssToObject: function(css) {
+  convertCssToObject: function (css) {
     var output = [];
+    var line = 1;
     for (var x = 0; x < css.length; x++) {
       var thisobj = {};
       // if this is a selector, i.e. ends with {
       if (css[x].slice(-1) === '{') {
         thisobj.selector = css[x]; // fixme trim off the { ?
+        thisobj.line = line;
+        line++;
         x++;
         var properties = [];
 
         // while the next line is not the end of the selector, i.e. }
         while(css[x] !== '}') {
           properties.push(css[x]);
+          line++;
           x++;
         }
         thisobj.properties = properties;
         output.push(thisobj);
+        line++;
       }
     }
     return output;
   },
 
-  longestDeclaration: function(lines) {
+  longestDeclaration: function (lines) {
     var longest = 0;
     var longestCSS = [];
 
@@ -148,7 +154,8 @@ var fn = {
   },
 
   // returns all class declarations that include an ID
-  findIdUsage: function(classes) {
+  // FIXME redundant
+  findIdUsage: function (classes) {
     var matches = [];
     for (var x = 0; x < classes.length; x++) {
       if (classes[x].match(/#[a-zA-Z]/g)) {
@@ -158,14 +165,32 @@ var fn = {
     return matches;
   },
 
+  findIdUsageInDeclarations: function (declaration) {
+    if (declaration.match(/#[a-zA-Z]/g)) {
+      return declaration;
+    } else {
+      return false;
+    }
+  },
+
   // returns all uses of !important
-  findImportantUsage: function(lines) {
+  // FIXME redundant
+  findImportantUsage: function (lines) {
     console.log(lines);
     var matches = [];
     for (var x = 0; x < lines.length; x++) {
       if (lines[x].match) {
         matches.push(lines[x]);
       }
+    }
+  },
+
+  // looks for !important and ! important
+  findImportantUsageInProperties: function (property) {
+    if (property.match(/![\s]*important/g)) {
+      return property;
+    } else {
+      return false;
     }
   }
 };

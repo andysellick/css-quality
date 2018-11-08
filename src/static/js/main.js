@@ -89,28 +89,61 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
       thisFile.warnings.push(warningMin);
     }
 
-    var ids = fn.findIdUsage(classes);
-    var idsLength = ids.length;
+    var warningId = {};
+    warningId.title = 'Found declarations using an ID attribute';
+    warningId.explain = 'breaks inheritance tree';
+    warningId.details = [];
 
-    if (idsLength) {
-      var warningId = {};
-      warningId.title = 'Found ' + idsLength + ' declarations using an ID attribute';
-      warningId.details = ids;
-      warningId.explain = 'breaks inheritance tree';
-      thisFile.warnings.push(warningId);
-    }
-/*
-    var important = fn.findImportantUsage(lines);
-    var importantLength = important.length;
+    var warningImportant = {};
+    warningImportant.title = 'Found properties using !important';
+    warningImportant.explain = 'breaks inheritance tree';
+    warningImportant.details = [];
 
-    if(importantLength) {
-      var warningImportant = {};
-      warningImportant.title = 'Found ' + importantLength + ' uses of !important';
-      warningImportant.details = important;
-      warningImportant.explain = 'overrides cascading, suggests CSS not well structured';
-      thisFile.warnings.push(warningImportant);
+    var warnDeclarations = [warningId];
+    var warnDeclarationsFunctions = [fn.findIdUsageInDeclarations];
+    var warnProperties = [warningImportant];
+    var warnPropertiesFunctions = [fn.findImportantUsageInProperties];
+
+    var cssObjArray = fn.convertCssToObject(fn.convertMinifiedCssToArray(minifiedCss));
+
+    // loop through all the declarations
+    for(var c = 0; c < cssObjArray.length; c++) {
+      var declaration = cssObjArray[c].selector;
+      var properties = cssObjArray[c].properties;
+      var line = cssObjArray[c].line;
+
+      // test each declaration for warnings
+      for (var d = 0; d < warnDeclarationsFunctions.length; d++) {
+        var dresult = warnDeclarationsFunctions[d](declaration);
+        if (dresult) {
+          warnDeclarations[d].details.push(dresult);
+        }
+      }
+
+      // test each property for warnings
+      for (var p = 0; p < warnPropertiesFunctions.length; p++) {
+        for (var i = 0; i < properties.length; i++) {
+          var presult = warnPropertiesFunctions[p](properties[i]);
+          if (presult) {
+            warnProperties[p].details.push(presult);
+          }
+        }
+      }
     }
-*/
+
+    // if warnings have been added to warning objects, add to output warnings
+    for (var w = 0; w < warnDeclarations.length; w++) {
+      if (warnDeclarations[w].details.length) {
+        thisFile.warnings.push(warnDeclarations[w]);
+      }
+    }
+
+    for (var w = 0; w < warnProperties.length; w++) {
+      if (warnProperties[w].details.length) {
+        thisFile.warnings.push(warnProperties[w]);
+      }
+    }
+
     /* final output */
     $scope.cssFiles.push(thisFile);
   };
