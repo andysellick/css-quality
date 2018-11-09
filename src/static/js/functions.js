@@ -142,6 +142,14 @@ var fn = {
     return output;
   },
 
+  createWarningObject: function (title, explain) {
+    return {
+      'title': title,
+      'explain': explain,
+      'details': []
+    }
+  },
+
   longestDeclaration: function (lines) {
     var longest = 0;
     var longestCSS = [];

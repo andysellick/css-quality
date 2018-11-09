@@ -94,23 +94,14 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
       thisFile.warnings.push(warningMin);
     }
 
-    var warningId = {};
-    warningId.title = 'declarations using an ID attribute';
-    warningId.explain = 'breaks inheritance tree';
-    warningId.details = [];
-
-    var warningQualified = {};
-    warningQualified.title = 'qualified declarations';
-    warningQualified.explain = 'too specific, reduces flexibility of CSS';
-    warningQualified.details = [];
-
-    var warningImportant = {};
-    warningImportant.title = 'properties using !important';
-    warningImportant.explain = 'breaks inheritance tree';
-    warningImportant.details = [];
+    var warningId = fn.createWarningObject('declarations using an ID attribute', 'breaks inheritance tree');
+    var warningQualified = fn.createWarningObject('qualified declarations', 'too specific, reduces flexibility of CSS')
 
     var warnDeclarations = [warningId, warningQualified];
     var warnDeclarationsFunctions = [fn.findIdUsageInDeclarations, fn.findQualifiedSelectors];
+
+    var warningImportant = fn.createWarningObject('properties using !important', 'breaks inheritance tree');
+
     var warnProperties = [warningImportant];
     var warnPropertiesFunctions = [fn.findImportantUsageInProperties];
 
