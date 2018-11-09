@@ -194,5 +194,13 @@ var fn = {
     } else {
       return false;
     }
+  },
+
+  findQualifiedSelectors: function (declaration) {
+    if (declaration.match(/[,]{1}[^.]{1}[\w]+[.]/g) || declaration.match(/^[\w]+[.]/g)) {
+      return declaration;
+    } else {
+      return false;
+    }
   }
 };

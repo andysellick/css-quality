@@ -218,6 +218,28 @@ only screen and (min-resolution: 2dppx){
     expect(output).toEqual(expected);
   });
 
+  if('finds qualified selectors in CSS', function(){
+    var line = 'div.classname';
+    var output = fn.findQualifiedSelectors(line);
+    var expected = 'div.classname';
+    expect(output).toEqual(expected);
+
+    line = '.classname';
+    output = fn.findQualifiedSelectors(line);
+    expected = false;
+    expect(output).toEqual(expected);
+
+    line = '.class2,div.c2lass,.class.otherclass';
+    output = fn.findQualifiedSelectors(line);
+    expected = '.class2,div.c2lass,.class.otherclass';
+    expect(output).toEqual(expected);
+
+    line = '.class,div.class-name,div.block__element--modifier';
+    output = fn.findQualifiedSelectors(line);
+    expected = '.class,div.class-name,div.block__element--modifier';
+    expect(output).toEqual(expected);
+  })
+
   it('finds the domain part of URLs', function() {
     var url = fn.findDomainFromUrl('http://www.quantpole.co.uk/index.php');
     var expected = 'http://www.quantpole.co.uk';
