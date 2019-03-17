@@ -8,16 +8,20 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
   $scope.submitForm = function() {
     console.log('form submit');
     $scope.cssFiles = [];
+		$scope.originsUrl = 'https://api.allorigins.win/get?url=URL&callback=';
+		
     var url = document.getElementById('website-url').value;
 
     if (url.length) {
-      // depends upon http://multiverso.me/AllOrigins/ to avoid CORS problems
-      $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(url) + '&callback=?', function(data){
-        var matches = data.contents.match(/href=[\S]+\.css/g);
+      // depends upon https://github.com/gnuns/allOrigins to avoid CORS problems
+			$.getJSON($scope.originsUrl.replace('URL', encodeURIComponent(url)), function(data){
+				var html = data.contents;
+								
+        var matches = html.match(/href=[\S]+\.css/g);
         var matchesLength = matches.length;
         for (var x = 0; x < matchesLength; x++) {
           var css = matches[x].replace(/href="/, '');
-
+					console.log(css);
           // append the URL if the CSS ref is not absolute
           if (css.substring(0, 4) !== 'http') {
             // if the CSS is not relative to the current path e.g. '/static/style.css'
@@ -34,7 +38,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
   };
 
   $scope.downloadCss = function(css) {
-    $.getJSON('http://allorigins.me/get?url=' + encodeURIComponent(css) + '&callback=?', function(data) {
+    $.getJSON($scope.originsUrl.replace('URL', encodeURIComponent(css)), function(data) {
       var filename = data.status.url.split('/');
       filename = filename[filename.length - 1];
       $scope.$apply(function () {
