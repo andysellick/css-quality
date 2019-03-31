@@ -238,8 +238,16 @@ only screen and (min-resolution: 2dppx){
     output = fn.findQualifiedSelectors(line);
     expected = '.class,div.class-name,div.block__element--modifier';
     expect(output).toEqual(expected);
-  })
+  });
 
+	it('ignores css conditional comments', function() {
+		var html = '<!--[if IE 6]><link rel="stylesheet" media="screen" href="https://w.co.uk/static/ie6.css" /><script>var ieVersion = 6;</script><![endif]-->';
+		var output = fn.removeConditionalComments(html);
+		
+		expect(output).toEqual('');
+	});
+	
+	
   it('finds the domain part of URLs', function() {
     var url = fn.findDomainFromUrl('http://www.quantpole.co.uk/index.php');
     var expected = 'http://www.quantpole.co.uk';
@@ -250,5 +258,5 @@ only screen and (min-resolution: 2dppx){
     expected = 'http://www.quantpole.co.uk';
 
     expect(url).toEqual(expected);
-  });
+  });	
 });

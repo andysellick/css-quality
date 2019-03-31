@@ -4,49 +4,53 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
   $scope.cssFiles = [];
   $scope.cssFilesSize = 0;
   $scope.hasRun = 0;
-
+	
+	// depends upon https://github.com/gnuns/allOrigins to avoid CORS problems
+	$scope.doRemoteRequest = function(url, callback, args) {
+		$.getJSON('http://api.allorigins.win/get?url=' + url + '&callback=?', function (data) {
+			callback(data, args);
+		});
+	};
+	
   $scope.submitForm = function() {
-    console.log('form submit');
     $scope.cssFiles = [];
-		$scope.originsUrl = 'https://api.allorigins.win/get?url=URL&callback=';
-		
     var url = document.getElementById('website-url').value;
-
+				
     if (url.length) {
-      // depends upon https://github.com/gnuns/allOrigins to avoid CORS problems
-			$.getJSON($scope.originsUrl.replace('URL', encodeURIComponent(url)), function(data){
-				var html = data.contents;
-								
-        var matches = html.match(/href=[\S]+\.css/g);
-        var matchesLength = matches.length;
-        for (var x = 0; x < matchesLength; x++) {
-          var css = matches[x].replace(/href="/, '');
-					console.log(css);
-          // append the URL if the CSS ref is not absolute
-          if (css.substring(0, 4) !== 'http') {
-            // if the CSS is not relative to the current path e.g. '/static/style.css'
-            // convert URL to be the base URL only
-            if (css.substring(0, 1) === '/') {
-              url = fn.findDomainFromUrl(url);
-            }
-            css = url + '/' + css;
-          }
-          $scope.downloadCss(css);
-        }
-      });
+			$scope.doRemoteRequest(encodeURIComponent(url), $scope.processUrl, [encodeURIComponent(url)]);
     }
   };
+		
+	$scope.processUrl = function(data, args) {
+		var html = data.contents;						
+		var matches = html.match(/href=[\S]+\.css/g);
+		var matchesLength = matches.length;
+		var url = args[0];
+		
+		for (var x = 0; x < matchesLength; x++) {
+			var css = matches[x].replace(/href="/, '');
 
-  $scope.downloadCss = function(css) {
-    $.getJSON($scope.originsUrl.replace('URL', encodeURIComponent(css)), function(data) {
-      var filename = data.status.url.split('/');
-      filename = filename[filename.length - 1];
-      $scope.$apply(function () {
-        $scope.processCssFile(data.contents, filename, css, data.status.content_length);
-      });
-    });
-  };
-
+			// append the URL if the CSS ref is not absolute
+			if (css.substring(0, 4) !== 'http') {
+				// if the CSS is not relative to the current path e.g. '/static/style.css'
+				// convert URL to be the base URL only
+				if (css.substring(0, 1) === '/') {
+					url = fn.findDomainFromUrl(url);
+				}
+				css = url + '/' + css;
+			}
+			$scope.doRemoteRequest(css, $scope.processCss, [css]);
+		}
+	};
+	
+	$scope.processCss = function(data, args) {
+		var filename = data.status.url.split('/');
+		filename = filename[filename.length - 1];
+		$scope.$apply(function () {
+			$scope.processCssFile(data.contents, filename, args[0], data.status.content_length);
+		});
+	};
+	
   $scope.processCssFile = function(css, filename, url, filesize) {
     var thisFile = {};
     $scope.hasRun = 1;

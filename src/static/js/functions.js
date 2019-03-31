@@ -43,6 +43,11 @@ var fn = {
     css = css.replace(/[^\:\;]+\/\/[\s\S]+?\n+/g, '\n'); // remove // comments, but not strings like http://
     return css.replace(/\/\*[\s\S]*?\*\//g, ''); // remove /* comments */
   },
+  
+  removeConditionalComments: function(css) {
+		return css.replace(/<!--.*-->/g, '');
+  },
+
 
   removeMediaQueries: function (css) {
     // remove any lines starting @ (something){ but not @font or @-ms-
