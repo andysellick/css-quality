@@ -12,6 +12,27 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
 		});
 	};
 	
+	// we'll use this when we go live
+	$scope.doRemoteRequestNEW = function(site, callback, args) {
+		var http = new XMLHttpRequest();
+		
+		var url = 'http://custarddoughnuts.co.uk/get/';
+		var params = 'url=' + site;
+		http.open('POST', url, true);
+		
+		//Send the proper header information along with the request
+		http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		http.setRequestHeader('Content-length', params.length);
+		http.setRequestHeader('Connection', 'close');
+		
+		http.onreadystatechange = function() { //Call a function when the state changes.
+			if(http.readyState === 4 && http.status === 200) {
+				console.log(http.responseText);
+			}
+		};
+		http.send(params);		
+	};
+	
   $scope.submitForm = function() {
     $scope.cssFiles = [];
     var url = document.getElementById('website-url').value;
@@ -103,7 +124,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     }
 
     var warningId = fn.createWarningObject('declarations using an ID attribute', 'breaks inheritance tree');
-    var warningQualified = fn.createWarningObject('qualified declarations', 'too specific, reduces flexibility of CSS')
+    var warningQualified = fn.createWarningObject('qualified declarations', 'too specific, reduces flexibility of CSS');
 
     var warnDeclarations = [warningId, warningQualified];
     var warnDeclarationsFunctions = [fn.findIdUsageInDeclarations, fn.findQualifiedSelectors];
