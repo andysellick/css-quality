@@ -4,50 +4,50 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
   $scope.cssFiles = [];
   $scope.cssFilesSize = 0;
   $scope.hasRun = 0;
-	
+
 	// depends upon https://github.com/gnuns/allOrigins to avoid CORS problems
 	$scope.doRemoteRequest = function(url, callback, args) {
 		$.getJSON('http://api.allorigins.win/get?url=' + url + '&callback=?', function (data) {
 			callback(data, args);
 		});
 	};
-	
+
 	// we'll use this when we go live
 	$scope.doRemoteRequestNEW = function(site, callback, args) {
 		var http = new XMLHttpRequest();
-		
+
 		var url = 'http://custarddoughnuts.co.uk/get/';
 		var params = 'url=' + site;
 		http.open('POST', url, true);
-		
+
 		//Send the proper header information along with the request
 		http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 		http.setRequestHeader('Content-length', params.length);
 		http.setRequestHeader('Connection', 'close');
-		
+
 		http.onreadystatechange = function() { //Call a function when the state changes.
 			if(http.readyState === 4 && http.status === 200) {
 				console.log(http.responseText);
 			}
 		};
-		http.send(params);		
+		http.send(params);
 	};
-	
+
   $scope.submitForm = function() {
     $scope.cssFiles = [];
     var url = document.getElementById('website-url').value;
-				
+
     if (url.length) {
 			$scope.doRemoteRequest(encodeURIComponent(url), $scope.processUrl, [encodeURIComponent(url)]);
     }
   };
-		
+
 	$scope.processUrl = function(data, args) {
-		var html = data.contents;						
+		var html = data.contents;
 		var matches = html.match(/href=[\S]+\.css/g);
 		var matchesLength = matches.length;
 		var url = args[0];
-		
+
 		for (var x = 0; x < matchesLength; x++) {
 			var css = matches[x].replace(/href="/, '');
 
@@ -63,7 +63,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
 			$scope.doRemoteRequest(css, $scope.processCss, [css]);
 		}
 	};
-	
+
 	$scope.processCss = function(data, args) {
 		var filename = data.status.url.split('/');
 		filename = filename[filename.length - 1];
@@ -71,7 +71,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
 			$scope.processCssFile(data.contents, filename, args[0], data.status.content_length);
 		});
 	};
-	
+
   $scope.processCssFile = function(css, filename, url, filesize) {
     var thisFile = {};
     $scope.hasRun = 1;
@@ -127,7 +127,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     var warningQualified = fn.createWarningObject('qualified declarations', 'too specific, reduces flexibility of CSS');
 
     var warnDeclarations = [warningId, warningQualified];
-    var warnDeclarationsFunctions = [fn.findIdUsageInDeclarations, fn.findQualifiedSelectors];
+    var warnSelectorsFunctions = [fn.findIdUsageInDeclarations, fn.findQualifiedSelectors];
 
     var warningImportant = fn.createWarningObject('properties using !important', 'breaks inheritance tree');
 
@@ -138,15 +138,18 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
 
     // loop through all the declarations
     for(var c = 0; c < cssObjArray.length; c++) {
-      var declaration = cssObjArray[c].selector;
+      var selectors = cssObjArray[c].selectors;
       var properties = cssObjArray[c].properties;
       var line = cssObjArray[c].line;
 
-      // test each declaration for warnings
-      for (var d = 0; d < warnDeclarationsFunctions.length; d++) {
-        var dresult = warnDeclarationsFunctions[d](declaration);
-        if (dresult) {
-          warnDeclarations[d].details.push('Line ' + line + ': ' + dresult);
+      // test each selector for warnings
+      for (var d = 0; d < warnSelectorsFunctions.length; d++) {
+        for (var e = 0; e < selectors.length; e++) {
+          line++;
+          var dresult = warnSelectorsFunctions[d](selectors[e]);
+          if (dresult) {
+            warnDeclarations[d].details.push('Line ' + line + ': ' + dresult);
+          }
         }
       }
 
@@ -156,7 +159,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
           line++;
           var presult = warnPropertiesFunctions[p](properties[i]);
           if (presult) {
-            warnProperties[p].details.push('Line ' + line + ': ' +presult);
+            warnProperties[p].details.push('Line ' + line + ': ' + presult);
           }
         }
       }

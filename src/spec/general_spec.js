@@ -92,38 +92,16 @@ only screen and (min-resolution: 2dppx){
     var css = '.noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none}.invisible,.totallyinvisible{position:absolute;left:-100000px;width:1px;height:1px;overflow:hidden;outline:0}.invisible:focus{position:static;width:auto;height:auto}a,address,article,aside,blockquote,body,button,dd,details,div,dl,dt,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,input,label,legend,li,main,menu,nav,ol,p,section,span,table,tbody,td,tfoot,th,thead,tr,ul{padding:0;margin:0;border:0;background:none;font-style:normal;font-weight:400;outline:0}button{-webkit-appearance:none}';
     var output = fn.convertMinifiedCssToArray(css);
     var expected = [
-      '.noselect{',
-      '-webkit-touch-callout:none;',
-      '-webkit-user-select:none;',
-      '-khtml-user-select:none;',
-      '-moz-user-select:none;',
-      '-ms-user-select:none',
-      '}',
-      '.invisible,.totallyinvisible{',
-      'position:absolute;',
-      'left:-100000px;',
-      'width:1px;',
-      'height:1px;',
-      'overflow:hidden;',
-      'outline:0',
-      '}',
-      '.invisible:focus{',
-      'position:static;',
-      'width:auto;',
-      'height:auto',
-      '}',
-      'a,address,article,aside,blockquote,body,button,dd,details,div,dl,dt,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,input,label,legend,li,main,menu,nav,ol,p,section,span,table,tbody,td,tfoot,th,thead,tr,ul{',
-      'padding:0;',
-      'margin:0;',
-      'border:0;',
-      'background:none;',
-      'font-style:normal;',
-      'font-weight:400;',
-      'outline:0',
-      '}',
-      'button{',
+      '.noselect',
+      '-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none',
+      '.invisible,.totallyinvisible',
+      'position:absolute;left:-100000px;width:1px;height:1px;overflow:hidden;outline:0',
+      '.invisible:focus',
+      'position:static;width:auto;height:auto',
+      'a,address,article,aside,blockquote,body,button,dd,details,div,dl,dt,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,input,label,legend,li,main,menu,nav,ol,p,section,span,table,tbody,td,tfoot,th,thead,tr,ul',
+      'padding:0;margin:0;border:0;background:none;font-style:normal;font-weight:400;outline:0',
+      'button',
       '-webkit-appearance:none',
-      '}'
     ];
 
     expect(output).toEqual(expected);
@@ -131,44 +109,51 @@ only screen and (min-resolution: 2dppx){
 
   it('converts CSS into an array of objects', function() {
     var css = [
-      '.class1 {',
-      'border: solid 1px red;',
-      'background: green',
-      '}',
-      '.class2, .class3 .class4 {',
-      'border: dotted 4px black;',
-      'background: orange',
-      '}',
-      '.class5 {',
+      '.class1',
+      'border: solid 1px red;background: green',
+      '.class2, .class3 .class4',
+      'border: dotted 4px black;background: orange',
+      '.class5',
       'background: red',
-      '}'
     ];
     var output = fn.convertCssToObject(css);
     var expected = [
       {
-        'selector': '.class1',
+        'selectors': ['.class1'],
         'line': 1,
         'properties': [
-          'border: solid 1px red;',
+          'border: solid 1px red',
           'background: green'
         ]
       },
       {
-        'selector': '.class2, .class3 .class4',
+        'selectors': ['.class2','.class3 .class4'],
         'line': 5,
         'properties': [
-          'border: dotted 4px black;',
+          'border: dotted 4px black',
           'background: orange',
         ]
       },
       {
-        'selector': '.class5',
+        'selectors': ['.class5'],
         'line': 10,
         'properties': [
           'background: red',
         ]
       }
     ];
+    expect(output).toEqual(expected);
+  });
+
+  it('converts a string to an array of selectors or properties', function() {
+    var selectors = ".class1,.class2,.class3";
+    var output = fn.returnLines(selectors, ",");
+    var expected = [
+      ".class1",
+      ".class2",
+      ".class3"
+    ];
+
     expect(output).toEqual(expected);
   });
 
@@ -243,11 +228,11 @@ only screen and (min-resolution: 2dppx){
 	it('ignores css conditional comments', function() {
 		var html = '<!--[if IE 6]><link rel="stylesheet" media="screen" href="https://w.co.uk/static/ie6.css" /><script>var ieVersion = 6;</script><![endif]-->';
 		var output = fn.removeConditionalComments(html);
-		
+
 		expect(output).toEqual('');
 	});
-	
-	
+
+
   it('finds the domain part of URLs', function() {
     var url = fn.findDomainFromUrl('http://www.quantpole.co.uk/index.php');
     var expected = 'http://www.quantpole.co.uk';
@@ -258,5 +243,5 @@ only screen and (min-resolution: 2dppx){
     expected = 'http://www.quantpole.co.uk';
 
     expect(url).toEqual(expected);
-  });	
+  });
 });

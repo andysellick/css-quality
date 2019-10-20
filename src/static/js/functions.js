@@ -43,7 +43,7 @@ var fn = {
     css = css.replace(/[^\:\;]+\/\/[\s\S]+?\n+/g, '\n'); // remove // comments, but not strings like http://
     return css.replace(/\/\*[\s\S]*?\*\//g, ''); // remove /* comments */
   },
-  
+
   removeConditionalComments: function(css) {
 		return css.replace(/<!--.*-->/g, '');
   },
@@ -95,13 +95,10 @@ var fn = {
     return lines;
   },
 
-  // given a chunk of minified CSS, turn it into an array of each line
+  // given a chunk of minified CSS, turn it into an array of lines of selectors and properties
   convertMinifiedCssToArray: function (css) {
     var uniqueChar = 'MOOOOOOO';
-    css = css.replace(/{/g, '{' + uniqueChar);
-    css = css.replace(/;/g, ';' + uniqueChar);
-    css = css.replace(/}/g, uniqueChar + '}' + uniqueChar);
-    css = css.split(uniqueChar);
+    css = css.split(/[{}]+/);
     return css.slice(0, -1);
   },
 
@@ -110,7 +107,10 @@ var fn = {
   /*
     [
       {
-        'selector': '.element .thing',
+        'selector's: [
+          '.element .thing',
+          '.class'
+        ],
         'line': 1,
         'properties': [
           'border: solid 1px red;',
@@ -122,29 +122,23 @@ var fn = {
   convertCssToObject: function (css) {
     var output = [];
     var line = 1;
-    for (var x = 0; x < css.length; x++) {
+    // assumes input is one line of selectors followed by one line of properties
+    for (var x = 0; x < css.length; x += 2) {
       var thisobj = {};
-      // if this is a selector, i.e. ends with {
-      if (css[x].slice(-1) === '{') {
-        thisobj.selector = css[x].replace('{', '').trim(); // fixme trim off the { ?
-        thisobj.line = line;
-        line += thisobj.selector.split(",").length || 1; // increment the line number assuming selectors are on different lines
-        //line++;
-        x++;
-        var properties = [];
-
-        // while the next line is not the end of the selector, i.e. }
-        while(css[x] !== '}') {
-          properties.push(css[x]);
-          line++;
-          x++;
-        }
-        thisobj.properties = properties;
-        output.push(thisobj);
-        line++;
-      }
+      thisobj.selectors = fn.returnLines(css[x], /,[\s]*/g);
+      thisobj.line = line;
+      thisobj.properties = fn.returnLines(css[x + 1], ";");
+      line += thisobj.properties.length || 1;
+      line += thisobj.selectors.length || 1;
+      line++; // +1 to line count to assume closing } is on a newline (lines are approximate anyway)
+      output.push(thisobj);
     }
     return output;
+  },
+
+  returnLines: function(line, split) {
+    var lines = line.split(split);
+    return lines;
   },
 
   createWarningObject: function (title, explain) {
@@ -191,7 +185,6 @@ var fn = {
   // returns all uses of !important
   // FIXME redundant
   findImportantUsage: function (lines) {
-    console.log(lines);
     var matches = [];
     for (var x = 0; x < lines.length; x++) {
       if (lines[x].match) {
