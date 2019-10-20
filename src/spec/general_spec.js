@@ -177,13 +177,17 @@ only screen and (min-resolution: 2dppx){
       'body#id',
       'a[href^="#"]:after'
     ];
-    var output = fn.findIdUsage(css);
     var expected = [
+      false,
+      false,
       '#id',
-      'body#id'
+      'body#id',
+      false
     ];
 
-    expect(output).toEqual(expected);
+    for (var x = 0; x < css.length; x++) {
+      expect(fn.findIdUsageInDeclarations(css[x])).toEqual(expected[x]);
+    }
   });
 
   it('finds uses of !important in CSS', function() {

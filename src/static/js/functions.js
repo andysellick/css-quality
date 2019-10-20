@@ -162,34 +162,11 @@ var fn = {
     return longest;
   },
 
-  // returns all class declarations that include an ID
-  // FIXME redundant
-  findIdUsage: function (classes) {
-    var matches = [];
-    for (var x = 0; x < classes.length; x++) {
-      if (classes[x].match(/#[a-zA-Z]/g)) {
-        matches.push(classes[x]);
-      }
-    }
-    return matches;
-  },
-
   findIdUsageInDeclarations: function (declaration) {
     if (declaration.match(/#[a-zA-Z]/g)) {
       return declaration;
     } else {
       return false;
-    }
-  },
-
-  // returns all uses of !important
-  // FIXME redundant
-  findImportantUsage: function (lines) {
-    var matches = [];
-    for (var x = 0; x < lines.length; x++) {
-      if (lines[x].match) {
-        matches.push(lines[x]);
-      }
     }
   },
 
