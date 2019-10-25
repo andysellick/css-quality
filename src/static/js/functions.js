@@ -149,6 +149,23 @@ var fn = {
     }
   },
 
+  // given functions to call, warnings to append to and elements (either selectors or properties)
+  // run functions, append warnings, and return warnings
+  // fixme write a test for this
+  runWarningFunctions: function(functions, warnings, elements) {
+    // test each selector for warnings
+    for (var d = 0; d < functions.length; d++) {
+      for (var e = 0; e < elements.length; e++) {
+        line++;
+        var dresult = functions[d](elements[e]);
+        if (dresult) {
+          warnings[d].details.push('Line ' + line + ': ' + dresult);
+        }
+      }
+    }
+    return warnings;
+  },
+
   longestDeclaration: function (lines) {
     var longest = 0;
     var longestCSS = [];

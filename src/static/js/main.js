@@ -38,7 +38,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
     var url = document.getElementById('website-url').value;
 
     if (url.length) {
-			$scope.doRemoteRequest(encodeURIComponent(url), $scope.processUrl, [encodeURIComponent(url)]);
+  		$scope.doRemoteRequest(encodeURIComponent(url), $scope.processUrl, [encodeURIComponent(url)]);
     }
   };
 
@@ -141,6 +141,10 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
       var selectors = cssObjArray[c].selectors;
       var properties = cssObjArray[c].properties;
       var line = cssObjArray[c].line;
+
+      // this can be used in place of the two loops below once everything else is working again
+      // warnDeclarations = fn.runWarningFunctions(warnSelectorsFunctions, warnDeclarations, selectors);
+      // warnProperties = fn.runWarningFunctions(warnPropertiesFunctions, warnProperties, properties);
 
       // test each selector for warnings
       for (var d = 0; d < warnSelectorsFunctions.length; d++) {
