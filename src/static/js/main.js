@@ -5,48 +5,45 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
   $scope.cssFilesSize = 0;
   $scope.hasRun = 0;
 
-	// depends upon https://github.com/gnuns/allOrigins to avoid CORS problems
-	$scope.doRemoteRequest = function(url, callback, args) {
-		$.getJSON('http://api.allorigins.win/get?url=' + url + '&callback=?', function (data) {
-			callback(data, args);
-		});
-	};
-
-	// we'll use this when we go live
-	$scope.doRemoteRequestNEW = function(site, callback, args) {
-		var http = new XMLHttpRequest();
-
-		var url = 'http://custarddoughnuts.co.uk/get/';
-		var params = 'url=' + site;
-		http.open('POST', url, true);
-
-		//Send the proper header information along with the request
-		http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-		http.setRequestHeader('Content-length', params.length);
-		http.setRequestHeader('Connection', 'close');
-
-		http.onreadystatechange = function() { //Call a function when the state changes.
-			if(http.readyState === 4 && http.status === 200) {
-				console.log(http.responseText);
-			}
-		};
-		http.send(params);
-	};
-
+  // get the URL to process and call remote request on it
   $scope.submitForm = function() {
     $scope.cssFiles = [];
     var url = document.getElementById('website-url').value;
 
+    // fixme add some kind of error checking here
     if (url.length) {
   		$scope.doRemoteRequest(encodeURIComponent(url), $scope.processUrl, [encodeURIComponent(url)]);
     }
   };
 
+	// if you're trying to run this on anything other than my computer, it won't work, sorry
+	$scope.doRemoteRequest = function(site, callback, args) {
+		var xhr = new XMLHttpRequest();
+
+		var url = '/get/';
+		var params = 'url=' + site;
+		xhr.open('POST', url, true);
+
+		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		xhr.setRequestHeader('Content-length', params.length);
+		xhr.setRequestHeader('Connection', 'close');
+
+		xhr.onreadystatechange = function() { //Call a function when the state changes.
+			if(xhr.readyState === 4 && xhr.status === 200) {
+				callback(xhr.responseText, args);
+			}
+		};
+		xhr.send(params);
+	};
+
+  // given json containing HTML source, find CSS files and
+  // call remote request to get each of them
 	$scope.processUrl = function(data, args) {
-		var html = data.contents;
+		data = JSON.parse(data);
+		var url = data['url'];
+		var html = data['contents']
 		var matches = html.match(/href=[\S]+\.css/g);
 		var matchesLength = matches.length;
-		var url = args[0];
 
 		for (var x = 0; x < matchesLength; x++) {
 			var css = matches[x].replace(/href="/, '');
@@ -65,10 +62,12 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
 	};
 
 	$scope.processCss = function(data, args) {
-		var filename = data.status.url.split('/');
+    data = JSON.parse(data)
+		var filename = data['url'].split('/');
 		filename = filename[filename.length - 1];
+
 		$scope.$apply(function () {
-			$scope.processCssFile(data.contents, filename, args[0], data.status.content_length);
+			$scope.processCssFile(data['contents'], filename, args[0], data['size']);
 		});
 	};
 
