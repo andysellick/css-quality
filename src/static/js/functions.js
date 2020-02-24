@@ -127,7 +127,7 @@ var fn = {
       var thisobj = {};
       thisobj.selectors = fn.returnLines(css[x], /,[\s]*/g);
       thisobj.line = line;
-      thisobj.properties = fn.returnLines(css[x + 1], ";");
+      thisobj.properties = fn.returnLines(css[x + 1], ';');
       line += thisobj.properties.length || 1;
       line += thisobj.selectors.length || 1;
       line++; // +1 to line count to assume closing } is on a newline (lines are approximate anyway)
@@ -146,13 +146,13 @@ var fn = {
       'title': title,
       'explain': explain,
       'details': []
-    }
+    };
   },
 
   // given functions to call, warnings to append to and elements (either selectors or properties)
   // run functions, append warnings, and return warnings
   // fixme write a test for this
-  runWarningFunctions: function(functions, warnings, elements) {
+  runWarningFunctions: function(functions, warnings, elements, line) {
     // test each selector for warnings
     for (var d = 0; d < functions.length; d++) {
       for (var e = 0; e < elements.length; e++) {

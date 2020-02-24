@@ -41,7 +41,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
 	$scope.processUrl = function(data, args) {
 		data = JSON.parse(data);
 		var url = data['url'];
-		var html = data['contents']
+		var html = data['contents'];
 		var matches = html.match(/href=[\S]+\.css/g);
 		var matchesLength = matches.length;
 
@@ -62,7 +62,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
 	};
 
 	$scope.processCss = function(data, args) {
-    data = JSON.parse(data)
+    data = JSON.parse(data);
 		var filename = data['url'].split('/');
 		filename = filename[filename.length - 1];
 
@@ -141,31 +141,8 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
       var properties = cssObjArray[c].properties;
       var line = cssObjArray[c].line;
 
-      // this can be used in place of the two loops below once everything else is working again
-      // warnDeclarations = fn.runWarningFunctions(warnSelectorsFunctions, warnDeclarations, selectors);
-      // warnProperties = fn.runWarningFunctions(warnPropertiesFunctions, warnProperties, properties);
-
-      // test each selector for warnings
-      for (var d = 0; d < warnSelectorsFunctions.length; d++) {
-        for (var e = 0; e < selectors.length; e++) {
-          line++;
-          var dresult = warnSelectorsFunctions[d](selectors[e]);
-          if (dresult) {
-            warnDeclarations[d].details.push('Line ' + line + ': ' + dresult);
-          }
-        }
-      }
-
-      // test each property for warnings
-      for (var p = 0; p < warnPropertiesFunctions.length; p++) {
-        for (var i = 0; i < properties.length; i++) {
-          line++;
-          var presult = warnPropertiesFunctions[p](properties[i]);
-          if (presult) {
-            warnProperties[p].details.push('Line ' + line + ': ' + presult);
-          }
-        }
-      }
+      warnDeclarations = fn.runWarningFunctions(warnSelectorsFunctions, warnDeclarations, selectors, line);
+      warnProperties = fn.runWarningFunctions(warnPropertiesFunctions, warnProperties, properties, line);
     }
 
     // if warnings have been added to warning objects, add to output warnings
