@@ -16,7 +16,7 @@
 </head>
 
 <body>
-  <div data-ng-app="cssquality" data-ng-controller="cssController as c" id="c" class="container jsenabled">
+  <div data-ng-app="cssquality" data-ng-controller="cssController as c" id="c" class="page-wrapper jsenabled">
     <h1 class="title">CSS Evaluator {{ test }}</h1>
 
     <form id="website-form" class="form">
@@ -35,7 +35,7 @@
     <!-- <input type="file" id="file"/> -->
 
     <div data-ng-if="hasRun">
-      <p>Found {{ cssFiles.length }} CSS file<span data-ng-show="f.noLines > 1">s</span> totalling {{ cssFilesSize }} KiB. Some files may not be included in page load (<a data-ng-click="showWhyNot = !showWhyNot">why not?</a>).</p>
+      <p>Found {{ cssFiles.length }} CSS file<span data-ng-show="f.noLines > 1">s</span> totalling {{ cssFilesSize | number: 2 }} KiB. Some files may not be included in page load (<a data-ng-click="showWhyNot = !showWhyNot">why not?</a>).</p>
 
       <p data-ng-show="showWhyNot">This tool analyses any CSS files in the source of the page it is given and ignores browser conditional comments. It does not analyse any CSS that is inline or loaded dynamically.</p>
     </div>
@@ -50,39 +50,47 @@
 
         <div class="css__content">
           <ul class="standard">
-            <li><a href="{{ f.url }}" target="_blank">View original</a></li>
             <li>{{ f.noLines }} line<span data-ng-show="f.noLines > 1">s</span> long</li>
-            <li>Number of declarations is {{ f.noClassDeclarations }}</li>
+            <li>{{ f.noClassDeclarations }} declarations</li>
+            <li><a href="{{ f.url }}" target="_blank">View original</a></li>
           </ul>
 
-          <details>
-            <summary>Longest class declaration is {{ f.longestDeclaration }}</summary>
-            <ul class="standard">
-              <li data-ng-repeat="l in f.longestClasses track by $index">
-                {{ l }}
-              </li>
-            </ul>
+          <details class="details">
+            <summary class="details__summary">Longest class declaration is {{ f.longestDeclaration }}</summary>
+            <div class="details__content">
+              <ul class="standard">
+                <li data-ng-repeat="l in f.longestClasses track by $index">
+                  {{ l }}
+                </li>
+              </ul>
+            </div>
           </details>
 
           <h2>{{ f.warnings.length }} warnings</h2>
-          <p>Line numbers are approximate.</p>
-          <div data-ng-repeat="warning in f.warnings track by $index">
-            <details data-ng-if="warning.details.length">
-              <summary>Found {{ warning.details.length }} {{ warning.title }}</summary>
-              <p>{{ warning.explain }}</p>
-
-              <ul class="standard">
-                <li data-ng-repeat="d in warning.details track by $index">
-                  {{ d }}
-                </li>
-              </ul>
-            </details>
+          <div data-ng-if="f.warnings.length">
+            <p>Line numbers are approximate.</p>
+            <div data-ng-repeat="warning in f.warnings track by $index">
+              <details class="details" data-ng-if="warning.details.length">
+                <summary class="details__summary">Found {{ warning.details.length }} {{ warning.title }}</summary>
+                <div class="details__content">
+                  <p>{{ warning.explain }}</p>
+  
+                  <ul class="standard details__list">
+                    <li data-ng-repeat="d in warning.details track by $index">
+                      {{ d }}
+                    </li>
+                  </ul>
+                </div>
+              </details>
+            </div>
           </div>
 
           <h2>Raw</h2>
-          <details>
-            <summary>See raw output</summary>
-            <pre class="raw">{{ f.rawCss }}</pre>
+          <details class="details">
+            <summary class="details__summary">See raw output</summary>
+            <div class="details__content">
+              <pre class="raw">{{ f.rawCss }}</pre>
+            </div>
           </details>
         </div>
       </details>

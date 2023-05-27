@@ -82,7 +82,7 @@ gulp.task('scripts', ['scripts:moveFiles'], function() {
     .pipe($.concat('main.js'))
     .pipe($.rename({suffix: '.min'}))
     .pipe(ngannotate())
-    .pipe($.uglify())
+    //.pipe($.uglify())
     .pipe($.bytediff.stop())
     .pipe(gulp.dest(paths.scripts.dest))
     .pipe(browserSync.stream());

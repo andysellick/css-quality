@@ -9,8 +9,36 @@ body {
   color: @black;
 }
 
+.page-wrapper {
+  margin: 0 10px;
+}
+
 .title {
   text-align: center;
+}
+
+.details {
+  margin-bottom: 10px;
+}
+
+.details__summary {
+  margin-bottom: 10px;
+  padding-left: 10px;
+  cursor: pointer;
+
+  &::marker {
+    position: absolute;
+    left: 0;
+  }
+}
+
+.details__content {
+  padding-left: 10px;
+}
+
+.details__list {
+  max-height: 400px;
+  overflow-y: scroll;
 }
 
 .raw {
