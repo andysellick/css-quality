@@ -1,6 +1,29 @@
 Unfinished
 ==========
 
+Making this work (notes to self)
+--------------------------------
+
+Because this is all so old and dependencies have shifted massively since it was first started, you might need to do a few things to make it work. At this point I'm pretty close to abandoning the whole task runner premise and just minifying by hand, but it does include the test runner so it is a bit needed, at least.
+
+You need to have the gulp cli globally installed (`npm install --global gulp-cli`)
+
+- `gulp` to get the server up and running
+- (or `npm run run-gulp` if you've not got gulp cli installed)
+- Jasmine tests are included, run `gulp jasmine`, visit localhost:8888
+
+For reference, using versions:
+
+- node 14.17.6
+- npm 6.14.15
+
+If you get an error about `os.tmpDir` try modifying `node_modes/cache-swap/index.js` as shown. Note that this will need to be changed again after every npm install (see https://github.com/alhazmy13/serverless-offline-python/issues/18)
+
+```
+var os = require('os');
+os.tmpDir = os.tmpdir;
+var tmpDir = require('os').tmpDir();
+```
 
 Use of Gulp
 ------------
@@ -45,11 +68,3 @@ The main component of this Gulp setup is BrowserSync. This plugin provides the f
 * Simultaneous page scrolling for all devices connected to the same link
 * Clicking links or populating form fields on one device will duplicate this behaviour on all other linked devices
 * A dashboard at `localhost:3001` where you can send commands to all connected devices, perform actions and do network throttle testing.
-
-Testing
--------
-
-Jasmine is included for testing.
-
-- run `gulp jasmine`
-- visit localhost:8888
