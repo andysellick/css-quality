@@ -248,4 +248,11 @@ only screen and (min-resolution: 2dppx){
 
     expect(url).toEqual(expected);
   });
+
+  it('cleans URLs of double slashes', function() {
+    var url = fn.clearUrlOfDoubleSlashes('http://www.test.com//something/path//index.php');
+    var expected = 'http://www.test.com/something/path/index.php';
+
+    expect(url).toEqual(expected);
+  });
 });

@@ -15,6 +15,13 @@ var fn = {
     return url;
   },
 
+  // fix URLs so https://example//asset.css becomes https://example/asset.css
+  clearUrlOfDoubleSlashes: function (url) {
+    var doubleSlash = /\/\//g;
+    var colonSlash = /:\//g;
+    return url.replace(doubleSlash, '/').replace(colonSlash, '://');
+  },
+
   // // remove any superfluous url from the URL e.g. trim off /index.php
   // handleFileSelect: function (e) {
   //   var reader = new FileReader();

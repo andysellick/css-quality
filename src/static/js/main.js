@@ -56,6 +56,7 @@ angular.module('cssquality', []).controller('cssController', function ($scope) {
 					url = fn.findDomainFromUrl(url);
 				}
 				css = url + '/' + css;
+        css = fn.clearUrlOfDoubleSlashes(css);
 			}
 			$scope.doRemoteRequest(css, $scope.processCss, [css]);
 		}
