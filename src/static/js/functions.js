@@ -1,10 +1,10 @@
 var fn = {
-  checkBrowserCompatibility: function () {
-    // Check for the various File API support. FIXME won't need to check for all of these?
-    if (window.File && window.FileReader && window.FileList && window.Blob) {
-      return true;
-    }
-  },
+  // checkBrowserCompatibility: function () {
+  //   // Check for the various File API support. FIXME won't need to check for all of these?
+  //   if (window.File && window.FileReader && window.FileList && window.Blob) {
+  //     return true;
+  //   }
+  // },
 
   // get the URL as the string up to the first instance of '/'
   findDomainFromUrl: function (url) {
@@ -15,21 +15,21 @@ var fn = {
     return url;
   },
 
-  // remove any superfluous url from the URL e.g. trim off /index.php
-  handleFileSelect: function (e) {
-    var reader = new FileReader();
-    var files = e.target.files;
-    var file = files[0];
-    reader.readAsText(file, 'UTF-8');
-
-    reader.onload = function (e) {
-      fn.processCssFile(e.target.result, file.name, file.size, file.type);
-    };
-
-    reader.onerror = function (e) {
-      document.getElementById('results').innerHTML = 'error reading file';
-    };
-  },
+  // // remove any superfluous url from the URL e.g. trim off /index.php
+  // handleFileSelect: function (e) {
+  //   var reader = new FileReader();
+  //   var files = e.target.files;
+  //   var file = files[0];
+  //   reader.readAsText(file, 'UTF-8');
+  //
+  //   reader.onload = function (e) {
+  //     fn.processCssFile(e.target.result, file.name, file.size, file.type);
+  //   };
+  //
+  //   reader.onerror = function (e) {
+  //     document.getElementById('results').innerHTML = 'error reading file';
+  //   };
+  // },
 
   cssIsMinified: function (css) {
     if ((css.match(/\n/g) || []).length > 1 || (css.match(/\t/g) || []).length > 0) {
@@ -44,10 +44,9 @@ var fn = {
     return css.replace(/\/\*[\s\S]*?\*\//g, ''); // remove /* comments */
   },
 
-  removeConditionalComments: function(css) {
-		return css.replace(/<!--.*-->/g, '');
-  },
-
+  // removeConditionalComments: function(css) {
+	// 	return css.replace(/<!--.*-->/g, '');
+  // },
 
   removeMediaQueries: function (css) {
     // remove any lines starting @ (something){ but not @font or @-ms-

@@ -229,12 +229,12 @@ only screen and (min-resolution: 2dppx){
     expect(output).toEqual(expected);
   });
 
-	it('ignores css conditional comments', function() {
-		var html = '<!--[if IE 6]><link rel="stylesheet" media="screen" href="https://w.co.uk/static/ie6.css" /><script>var ieVersion = 6;</script><![endif]-->';
-		var output = fn.removeConditionalComments(html);
-
-		expect(output).toEqual('');
-	});
+	// it('ignores css conditional comments', function() {
+	// 	var html = '<!--[if IE 6]><link rel="stylesheet" media="screen" href="https://w.co.uk/static/ie6.css" /><script>var ieVersion = 6;</script><![endif]-->';
+	// 	var output = fn.removeConditionalComments(html);
+  //
+	// 	expect(output).toEqual('');
+	// });
 
 
   it('finds the domain part of URLs', function() {
